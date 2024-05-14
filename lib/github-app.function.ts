@@ -1,7 +1,7 @@
 import { Context, APIGatewayProxyResult, APIGatewayEvent } from 'aws-lambda';
 import { App, Octokit } from 'octokit';
 
-// https://docs.github.com/en/webhooks/using-webhooks/validating-webhook-deliveries
+// Modified from https://docs.github.com/en/webhooks/using-webhooks/validating-webhook-deliveries
 import * as crypto from 'crypto';
 
 const GITHUB_APP_WEBHOOK_SECRET: string = String(process.env.GITHUB_APP_WEBHOOK_SECRET);
@@ -9,14 +9,12 @@ const X_HUB_SIGNATURE_256 = "X-Hub-Signature-256";
 
 const verifySignature = (event: APIGatewayEvent) => {
     if ((event.headers[X_HUB_SIGNATURE_256] === undefined) || (event.headers[X_HUB_SIGNATURE_256] === null)) {
-        console.log(`No signature found in headers: ${JSON.stringify(event.headers)}`);
+        console.warn(`Missing ${X_HUB_SIGNATURE_256} header:\n${JSON.stringify(event.headers)}`);
         return false;
-    } else {
-        console.log(`${X_HUB_SIGNATURE_256}: \n${event.headers[X_HUB_SIGNATURE_256]}`);
     }
     const signature = crypto
         .createHmac("sha256", GITHUB_APP_WEBHOOK_SECRET)
-        .update(JSON.stringify(event.body))
+        .update(String(event.body), 'ascii')
         .digest("hex");
     let trusted = Buffer.from(`sha256=${signature}`, 'ascii');
     let untrusted =  Buffer.from(event.headers[X_HUB_SIGNATURE_256], 'ascii');
@@ -43,12 +41,11 @@ export const handler = async (event: APIGatewayEvent, context: Context): Promise
             },
             body: JSON.stringify({
                 message: 'Unauthorized: Unable to verify signature',
-                headers: event.headers,
             }),
         };
     }
     return {
-        statusCode: 200,
+        statusCode: 202,
         headers: {
             'Content-Type': 'application/json',
         },
