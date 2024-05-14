@@ -26,8 +26,9 @@ export class GitHubApp extends Construct {
         GITHUB_APP_WEBHOOK_SECRET: getEnv(GITHUB_APP_WEBHOOK_SECRET),
       },
     });
-    new LambdaRestApi(this, 'apigw', {
+    const githubAppApiGateway = new LambdaRestApi(this, 'apigw', {
       handler: githubAppFunction,
     });
+    githubAppApiGateway.root.addMethod('POST');
   }
 }

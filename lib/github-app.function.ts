@@ -7,16 +7,19 @@ import * as crypto from 'crypto';
 const GITHUB_APP_WEBHOOK_SECRET: string = String(process.env.GITHUB_APP_WEBHOOK_SECRET);
 const X_HUB_SIGNATURE_256 = "X-Hub-Signature-256";
 
-const verify_signature = (event: APIGatewayEvent) => {
+const verifySignature = (event: APIGatewayEvent) => {
     if ((event.headers[X_HUB_SIGNATURE_256] === undefined) || (event.headers[X_HUB_SIGNATURE_256] === null)) {
+        console.log(`No signature found in headers: ${JSON.stringify(event.headers)}`);
         return false;
+    } else {
+        console.log(`${X_HUB_SIGNATURE_256}: \n${event.headers[X_HUB_SIGNATURE_256]}`);
     }
     const signature = crypto
         .createHmac("sha256", GITHUB_APP_WEBHOOK_SECRET)
         .update(JSON.stringify(event.body))
         .digest("hex");
     let trusted = Buffer.from(`sha256=${signature}`, 'ascii');
-    let untrusted =  Buffer.from(event.headers[X_HUB_SIGNATURE_256]!, 'ascii');
+    let untrusted =  Buffer.from(event.headers[X_HUB_SIGNATURE_256], 'ascii');
     return crypto.timingSafeEqual(trusted, untrusted);
 };
 
@@ -32,7 +35,7 @@ const octokit = new Octokit({
 export const handler = async (event: APIGatewayEvent, context: Context): Promise<APIGatewayProxyResult> => {
     console.log(`Event: ${JSON.stringify(event, null, 2)}`);
     console.log(`Context: ${JSON.stringify(context, null, 2)}`);
-    if (!verify_signature(event)) {
+    if (!verifySignature(event)) {
         return {
             statusCode: 401,
             headers: {
@@ -40,6 +43,7 @@ export const handler = async (event: APIGatewayEvent, context: Context): Promise
             },
             body: JSON.stringify({
                 message: 'Unauthorized: Unable to verify signature',
+                headers: event.headers,
             }),
         };
     }
