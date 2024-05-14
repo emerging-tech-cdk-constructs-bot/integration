@@ -1,8 +1,8 @@
 {
-  "name": "hello-world",
+  "name": "github-app",
   "version": "0.1.0",
   "bin": {
-    "hello-world": "bin/hello-world.js"
+    "github-app": "bin/github-app.js"
   },
   "scripts": {
     "build": "tsc",
