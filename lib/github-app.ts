@@ -29,6 +29,6 @@ export class GitHubApp extends Construct {
     const githubAppApiGateway = new LambdaRestApi(this, 'apigw', {
       handler: githubAppFunction,
     });
-    githubAppApiGateway.root.addMethod('POST');
+    // githubAppApiGateway.root.addMethod('POST');
   }
 }
