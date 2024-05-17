@@ -22,7 +22,12 @@
     "typescript": "~5.4.5"
   },
   "dependencies": {
+    "@octokit/auth-app": "^7.1.0",
+    "@octokit/core": "^6.1.2",
+    "@octokit/graphql": "^8.1.1",
+    "@octokit/request": "^9.1.1",
     "aws-cdk-lib": "2.141.0",
+    "aws-sdk": "^2.1622.0",
     "constructs": "^10.0.0",
     "octokit": "^4.0.2",
     "source-map-support": "^0.5.21"
