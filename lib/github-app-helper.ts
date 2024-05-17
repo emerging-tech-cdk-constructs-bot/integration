@@ -1,5 +1,5 @@
-//import { App } from 'octokit';
-// import SecretHelper from './secrets-helper';
+import { App } from 'octokit';
+import SecretHelper from './secrets-helper';
 
 export const GITHUB_APP_SECRETS_MANAGER_PREFIX = 'GitHubApp/';
 
