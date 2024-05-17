@@ -8,8 +8,7 @@ export const handler = async (event: APIGatewayEvent, context: Context): Promise
     console.debug(`Event:\n${JSON.stringify(event, null, 2)}`);
     console.debug(`Context:\n${JSON.stringify(context, null, 2)}`);
 
-    try {
-        // GitHub App should always sign
+    try {    
         if (!await verifySignature(event)) {
             console.warn(`Signature verification failed`);
             return {
@@ -29,7 +28,7 @@ export const handler = async (event: APIGatewayEvent, context: Context): Promise
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
-                    message: await processGithubWebhook(event),
+                    message: "await processGithubWebhook(event)",
                 }),
             };
         }

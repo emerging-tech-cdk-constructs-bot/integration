@@ -1,6 +1,7 @@
 import { APIGatewayEvent } from 'aws-lambda';
-
-// import { App } from 'octokit';
+import { SecretsManager } from 'aws-sdk';
+import { App } from 'octokit';
+import SecretHelper from './secrets-helper';
 // //import { processGithubPullRequest } from './processGithubPullRequest';
 // import GitHubAppHelper from './github-app-helper';
 
@@ -31,9 +32,17 @@ export async function processGithubWebhook(event: APIGatewayEvent) {
     console.log(`AppId(${appId}) with Body:\n${JSON.stringify(githubBody, null, 2)}`);
 
     const githubPayload = githubBody[githubEvent];
-    // // Get GitHub app private key
-    // const githubAppHelper = GitHubAppHelper.getInstance();
-    // const app = githubAppHelper.getApp(appId);
+
+    const secretHelper = SecretHelper.getInstance();
+    const githubAppSecretsString = await secretHelper.getSecret(GITHUB_APP_SECRETS_MANAGER_PREFIX.concat(String(appId)));
+    const githubAppSecrets = JSON.parse(githubAppSecretsString);
+
+    console.log(`AppId(${appId}) with Secrets:\n${JSON.stringify(githubAppSecrets, null, 2)}`);
+    // Get GitHub app private key
+    const app = new App({
+        appId: appId,
+        privateKey: String(githubAppSecrets.privateKey),
+    });
 
     // const pullRequestPayload = githubBody["pull_request"];
 

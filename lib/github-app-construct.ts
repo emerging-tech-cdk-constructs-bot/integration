@@ -1,7 +1,7 @@
 import { Construct } from 'constructs';
 import { Duration, aws_iam as iam } from 'aws-cdk-lib';
 import { NodejsFunction } from 'aws-cdk-lib/aws-lambda-nodejs';
-import { Runtime } from 'aws-cdk-lib/aws-lambda';
+import { Runtime, LogFormat } from 'aws-cdk-lib/aws-lambda';
 import { LambdaRestApi } from 'aws-cdk-lib/aws-apigateway';
 import GITHUB_PREFIX from './github-app-helper';
 import * as path from 'path';
@@ -13,6 +13,9 @@ export class GitHubAppConstruct extends Construct {
       runtime: Runtime.NODEJS_20_X,
       timeout: Duration.seconds(20),
       handler: 'handler',
+      logFormat: LogFormat.JSON,
+      systemLogLevel: 'DEBUG', // 'DEBUG', 'INFO', and 'WARN'
+      applicationLogLevel: 'TRACE', // plus 'TRACE', 'ERROR', and 'FATAL'
       entry: path.join(__dirname, `/github-app-construct.function.ts`),
       role: new iam.Role(this, 'functionRole', {
         assumedBy: new iam.ServicePrincipal('lambda.amazonaws.com'),

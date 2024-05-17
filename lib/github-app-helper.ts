@@ -1,4 +1,5 @@
 import { App } from 'octokit';
+//import { App } from '@octokit/app';
 import SecretHelper from './secrets-helper';
 
 export const GITHUB_APP_SECRETS_MANAGER_PREFIX = 'GitHubApp/';
@@ -51,18 +52,19 @@ export default class GitHubAppHelper {
   public async getApp(appId: number): Promise<string> {
     if (!this.apps.has(appId)) {
       // Get GitHub app webhook secret from AWS Secrets Manager
-      // const secretHelper = SecretHelper.getInstance();
-      // const githubAppSecrets = await secretHelper.getSecret(<string>GITHUB_APP_SECRETS_MANAGER_PREFIX.concat(String(appId)));
-      const githubAppSecrets = "";
+      const secretHelper = SecretHelper.getInstance();
+      const githubAppSecrets = await secretHelper.getSecret(<string>GITHUB_APP_SECRETS_MANAGER_PREFIX.concat(String(appId)));
+//      const githubAppSecrets = "";
       console.log(githubAppSecrets);
       console.log(String(JSON.parse(githubAppSecrets).privateKey));
-      this.apps.set(appId, String(JSON.parse(githubAppSecrets).privateKey));
+      // console.log(App.VERSION);
       // const app = new App({
       //     appId: appId,
-      //     privateKey: String(JSON.parse(githubAppSecrets).privateKey),
+      //     privateKey: "", //String(JSON.parse(githubAppSecrets).privateKey),
       //     // webhookSecret: String(JSON.parse(githubAppSecrets).webhookSecret),
       // });
       // this.apps.set(appId, app);
+      this.apps.set(appId, String(JSON.parse(githubAppSecrets).privateKey));
     }
 
     return <string>this.apps.get(appId);
