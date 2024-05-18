@@ -3,7 +3,7 @@ import { Duration, aws_iam as iam } from 'aws-cdk-lib';
 import { NodejsFunction } from 'aws-cdk-lib/aws-lambda-nodejs';
 import { Runtime, LogFormat } from 'aws-cdk-lib/aws-lambda';
 import { LambdaRestApi } from 'aws-cdk-lib/aws-apigateway';
-import GITHUB_PREFIX from './github-app-helper';
+import GITHUB_APP_SECRETS_MANAGER_PREFIX from './github-app-helper';
 import * as path from 'path';
 
 export class GitHubAppConstruct extends Construct {
@@ -35,7 +35,7 @@ export class GitHubAppConstruct extends Construct {
               new iam.PolicyStatement({
                 actions: ['secretsmanager:GetSecretValue'],
                 effect: iam.Effect.ALLOW,
-                resources: [GITHUB_PREFIX + "*"],
+                resources: ["*"], // GITHUB_APP_SECRETS_MANAGER_PREFIX + "*"],
                 sid: 'AllowGetSecretValueForGitHubApps'
               })
             ]

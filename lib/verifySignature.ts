@@ -1,7 +1,7 @@
 import { APIGatewayEvent } from 'aws-lambda';
 import * as crypto from 'crypto';
 import {
-    X_GITHUB_INSTALLATION_TARGET_ID,
+    X_GITHUB_HOOK_INSTALLATION_TARGET_ID,
     X_HUB_SIGNATURE_256,
  } from './processGithubWebhook';
 import SecretHelper from './secrets-helper';
@@ -14,13 +14,17 @@ export const verifySignature = async (event: APIGatewayEvent) => {
         console.warn(`Missing "${X_HUB_SIGNATURE_256}" in headers`);
         return false;
     }
-    if (!(X_GITHUB_INSTALLATION_TARGET_ID in event.headers) || Number.isInteger(event.headers[X_GITHUB_INSTALLATION_TARGET_ID])) {
-        console.warn(`Missing "${X_GITHUB_INSTALLATION_TARGET_ID}" in headers`);
+    if (!(X_GITHUB_HOOK_INSTALLATION_TARGET_ID in event.headers) || isNaN(event.headers[X_GITHUB_HOOK_INSTALLATION_TARGET_ID])) {
+        console.warn(event.headers);
+        console.warn(!X_GITHUB_HOOK_INSTALLATION_TARGET_ID in event.headers);
+        console.warn(isNaN(event.headers[X_GITHUB_HOOK_INSTALLATION_TARGET_ID]));
+        console.warn(event.headers[X_GITHUB_HOOK_INSTALLATION_TARGET_ID]);
+        console.warn(`Missing "${X_GITHUB_HOOK_INSTALLATION_TARGET_ID}" in headers`);
         return false;
     }
 
-    const appId = Number(event.headers[X_GITHUB_INSTALLATION_TARGET_ID]);
-    console.trace(`appId: ${Number(appId)}`);
+    const appId = Number(event.headers[X_GITHUB_HOOK_INSTALLATION_TARGET_ID]);
+    console.debug(`appId: ${Number(appId)}`);
 
     // The GitHub app webhook secret from AWS Secrets Manager
     // GitHub App should always sign
@@ -33,7 +37,7 @@ export const verifySignature = async (event: APIGatewayEvent) => {
     console.trace(`githubAppSecrets:\n${JSON.stringify(githubAppSecrets)}`);
     const webHookSecret = String(githubAppSecrets.webhookSecret);
     console.trace(`webHookSecret: ${webHookSecret}`);
-    
+
     const signature = crypto
         .createHmac("sha256", webHookSecret)
         .update(String(event.body), 'ascii')
