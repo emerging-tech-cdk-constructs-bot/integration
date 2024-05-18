@@ -14,7 +14,7 @@ export const verifySignature = async (event: APIGatewayEvent) => {
         console.warn(`Missing or Invalid "${X_HUB_SIGNATURE_256}" in headers`);
         return false;
     }
-    if (!(X_GITHUB_HOOK_INSTALLATION_TARGET_ID in event.headers) || isNaN(event.headers[X_GITHUB_HOOK_INSTALLATION_TARGET_ID])) {
+    if (!(X_GITHUB_HOOK_INSTALLATION_TARGET_ID in event.headers) || isNaN(parseInt(String(event.headers[X_GITHUB_HOOK_INSTALLATION_TARGET_ID])))) {
         console.warn(`Missing or Invalid "${X_GITHUB_HOOK_INSTALLATION_TARGET_ID}" in headers`);
         return false;
     }
