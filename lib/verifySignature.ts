@@ -10,16 +10,12 @@ export const GITHUB_APP_SECRETS_MANAGER_PREFIX = 'GitHubApp/';
 
 export const verifySignature = async (event: APIGatewayEvent) => {
     const gitHubSignature256Header = event.headers[X_HUB_SIGNATURE_256];
-    if ((gitHubSignature256Header === undefined) || (gitHubSignature256Header === null)) {
-        console.warn(`Missing "${X_HUB_SIGNATURE_256}" in headers`);
+    if ((gitHubSignature256Header === undefined) || (gitHubSignature256Header === null) || !String(gitHubSignature256Header).startsWith("sha256=")) {
+        console.warn(`Missing or Invalid "${X_HUB_SIGNATURE_256}" in headers`);
         return false;
     }
     if (!(X_GITHUB_HOOK_INSTALLATION_TARGET_ID in event.headers) || isNaN(event.headers[X_GITHUB_HOOK_INSTALLATION_TARGET_ID])) {
-        console.warn(event.headers);
-        console.warn(!X_GITHUB_HOOK_INSTALLATION_TARGET_ID in event.headers);
-        console.warn(isNaN(event.headers[X_GITHUB_HOOK_INSTALLATION_TARGET_ID]));
-        console.warn(event.headers[X_GITHUB_HOOK_INSTALLATION_TARGET_ID]);
-        console.warn(`Missing "${X_GITHUB_HOOK_INSTALLATION_TARGET_ID}" in headers`);
+        console.warn(`Missing or Invalid "${X_GITHUB_HOOK_INSTALLATION_TARGET_ID}" in headers`);
         return false;
     }
 
