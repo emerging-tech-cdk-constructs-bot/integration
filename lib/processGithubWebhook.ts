@@ -17,7 +17,7 @@ export async function processGithubWebhook(event: APIGatewayEvent) {
     if (githubEvent === undefined || githubEvent === null || githubEvent === "") {
         throw new Error(`Missing or Invalid "${X_GITHUB_EVENT}" in headers`);
     }
-    if (!(X_GITHUB_HOOK_INSTALLATION_TARGET_ID in event.headers) || Number.isInteger(event.headers[X_GITHUB_HOOK_INSTALLATION_TARGET_ID])) {
+    if (!(X_GITHUB_HOOK_INSTALLATION_TARGET_ID in event.headers) || isNaN(parseInt(String(event.headers[X_GITHUB_HOOK_INSTALLATION_TARGET_ID])))) {
         throw new Error(`Missing or Invalid "${X_GITHUB_HOOK_INSTALLATION_TARGET_ID}" in headers`);
     }
     const appId = Number(event.headers[X_GITHUB_HOOK_INSTALLATION_TARGET_ID]);

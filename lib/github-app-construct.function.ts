@@ -28,7 +28,7 @@ export const handler = async (event: APIGatewayEvent, context: Context): Promise
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
-                    message: "await processGithubWebhook(event)",
+                    message: await processGithubWebhook(event),
                 }),
             };
         }
