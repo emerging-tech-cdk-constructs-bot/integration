@@ -23,5 +23,6 @@ jobs:
           aws-region: ${{ vars.AWS_REGION }}
           role-duration-seconds: 7200
           mask-aws-account-id: true
-      - run: 'cdk synth'
+      - run: 'cdk synthesize'
       - run: 'cdk diff'
+      - run: 'cdk deploy --require-approval never'
