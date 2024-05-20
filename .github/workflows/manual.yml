@@ -16,6 +16,7 @@ jobs:
           cache-dependency-path: 'package-lock.json'
       - run: 'npm install --global aws-cdk'
       - run: 'cdk --version'
+      - run: 'npm install'
       - uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: ${{ secrets.AWS_ROLE_ARN_TO_ASSUME }}
