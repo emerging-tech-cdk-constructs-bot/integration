@@ -28,6 +28,7 @@ export const processGithubPullRequest = (event: APIGatewayEvent) => {
 //                         }
 //                         pullRequest(number: ${githubPayload.pull_request.number}) {
 //                             state
+//                             mergeable
 //                             reviewDecision
 //                             latestReviews(first: 100) {
 //                                 nodes {
@@ -43,9 +44,10 @@ export const processGithubPullRequest = (event: APIGatewayEvent) => {
 //                 }`);
 //                 console.log(`octokit.graphql.repository:\n${JSON.stringify(graphql, null, 2)}`);
 //                 if ((graphql.repository.pullRequest["state"] === "OPEN") && // not "CLOSED" nor "MERGED"
-//                     (graphql.repository.pullRequest.reviewDecision === "APPROVED") // not "REVIEW_REQUIRED" nor "CHANGES_REQUIRED"
+//                     (graphql.repository.pullRequest.reviewDecision === "APPROVED") && // not "REVIEW_REQUIRED" nor "CHANGES_REQUIRED"
+//                     (graphql.repository.pullRequest.mergeable === "MERGEABLE") // not "CONFLICTING" nor "UNKNOWN"
 //                 ) {
-//                     console.log(`PR is "OPEN" and "APPROVED"`);
+//                     console.log(`PR is "OPEN" and "APPROVED" and "MERGEABLE"`);
 //                     // The GitHub App owner and Collaborators with "ADMIN"
 //                     const repositoryIntegrators = [...new Set([pullRequestPayload.app.owner.login].concat(graphql.repository.collaborators.edges.filter(edge => edge.permission === "ADMIN").map(edge => edge.node.login)))];
 //                     console.log(`repositoryIntegrators:\n${JSON.stringify(repositoryIntegrators, null, 2)}`);
@@ -91,7 +93,7 @@ export const processGithubPullRequest = (event: APIGatewayEvent) => {
 //                         console.warn(`How come there are no reviews when "APPROVED"???`);
 //                     }
 //                 } else {
-//                     console.log(`PR not "OPEN" or "APPROVED"`);
+//                     console.log(`PR not "OPEN" or "APPROVED" or "MERGEABLE"`);
 //                 }
 //             } else {
 //                 console.log(`PR not labeled with "integration"`);
