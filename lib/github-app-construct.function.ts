@@ -1,5 +1,5 @@
 import { Context, APIGatewayProxyResult, APIGatewayEvent } from 'aws-lambda';
-import { processGithubWebhook } from './processGithubWebhook';
+import { processGithubWebhook } from './process-github-webhook';
 import { verifySignature } from './verifySignature';
 
 //TODO: Implement when Amazon API Gateway can reduce the time to first byte (TTFB) for AWS Lambda.

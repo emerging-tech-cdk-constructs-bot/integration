@@ -3,7 +3,7 @@ import * as crypto from 'crypto';
 import {
     X_GITHUB_HOOK_INSTALLATION_TARGET_ID,
     X_HUB_SIGNATURE_256,
- } from './processGithubWebhook';
+ } from './process-github-webhook';
 import SecretHelper from './secrets-helper';
 
 export const GITHUB_APP_SECRETS_MANAGER_PREFIX = 'GitHubApp/';
