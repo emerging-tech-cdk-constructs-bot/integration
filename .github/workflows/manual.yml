@@ -1,0 +1,23 @@
+on: 
+  workflow_dispatch:
+jobs:
+  manual:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+          node-version-file: 'package.json'
+          cache: 'npm'
+          cache-dependency-path: 'package-lock.json'
+      - run: 'npm install --global aws-cdk'
+      - run: 'cdk --version'
+      - uses: aws-actions/configure-aws-credentials@4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN_TO_ASSUME }}
+          aws-region: ${{ vars.AWS_REGION }}
+          role-duration-seconds: 7200
+          mask-aws-account-id: true
+      - run: 'cdk synth'
+      - run: 'cdk diff'
