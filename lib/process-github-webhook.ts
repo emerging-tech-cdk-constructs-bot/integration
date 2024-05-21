@@ -127,7 +127,7 @@ export async function processGithubWebhook(event: APIGatewayEvent) {
             processPullRequest = false;
             break;
     }
-    //const pullRequest = await processGithubPullRequest(appId, githubBody); //, githubBody["pull_request"]);
+    const pullRequest = await processGithubPullRequest(appId, githubBody); //, githubBody["pull_request"]);
 
     return githubBody;
 }

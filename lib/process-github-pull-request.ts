@@ -15,45 +15,48 @@ export const processGithubPullRequest = async (appId: Number, body: Object) => {
             privateKey: privateKey,
         });
 
-        // https://github.com/octokit/octokit.js/?tab=readme-ov-file#authentication
-        const octokit = await app.getInstallationOctokit(
-            Number(body.installation.id)
-        ); 
+        if ("installation" in body && "id" in body.installation) {
+            // https://github.com/octokit/octokit.js/?tab=readme-ov-file#authentication
+            const octokit = await app.getInstallationOctokit(
+                Number(body.installation.id)
+            );
 
-        // Get the reviews for the PR
-        // https://docs.github.com/en/graphql/reference/objects#repository
-        const graphql = await octokit.graphql(`query {
-            repository(
-                followRenames: true,
-                name: "${body.pull_request.head.repo.name}",
-                owner: "${body.pull_request.head.repo.owner.login}"
-            ) {
-                collaborators(first: 100) {
-                    edges {
-                        permission
-                        node {
-                            login
-                        }
-                    }
-                    totalCount
-                }
-                pullRequest(number: ${body.pull_request.number}) {
-                    state
-                    mergeable
-                    reviewDecision
-                    latestReviews(first: 100) {
-                        nodes {
-                            state
-                            author {
+            if ("pull_request" in body && "head" in body.pull_request) {
+
+            // Get the reviews for the PR
+            // https://docs.github.com/en/graphql/reference/objects#repository
+            const graphql = await octokit.graphql(`query {
+                repository(
+                    followRenames: true,
+                    name: "${body.pull_request.head.repo.name}",
+                    owner: "${body.pull_request.head.repo.owner.login}"
+                ) {
+                    collaborators(first: 100) {
+                        edges {
+                            permission
+                            node {
                                 login
                             }
-                            updatedAt
+                        }
+                        totalCount
+                    }
+                    pullRequest(number: ${body.pull_request.number}) {
+                        state
+                        mergeable
+                        reviewDecision
+                        latestReviews(first: 100) {
+                            nodes {
+                                state
+                                author {
+                                    login
+                                }
+                                updatedAt
+                            }
                         }
                     }
                 }
-            }
-        }`);
-        console.log(`octokit.graphql.repository:\n${JSON.stringify(graphql, null, 2)}`);
+            }`);
+            console.log(`octokit.graphql.repository:\n${JSON.stringify(graphql, null, 2)}`);
 
         // // Only process PRs that are labeled upon approval
         // if (githubPayload.pull_request.labels.some(label => label.name === "integration")) {
@@ -151,4 +154,6 @@ export const processGithubPullRequest = async (appId: Number, body: Object) => {
             // } else {
             //     console.log(`PR not labeled with "integration"`);
             // }
+        }
+    }
 }
