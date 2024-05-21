@@ -34,15 +34,6 @@ export const processGithubPullRequest = async (appId: Number, body: any) => {
                     name: "${body.pull_request.head.repo.name}",
                     owner: "${body.pull_request.head.repo.owner.login}"
                 ) {
-                    collaborators(first: 100) {
-                        edges {
-                            permission
-                            node {
-                                login
-                            }
-                        }
-                        totalCount
-                    }
                     pullRequest(number: ${body.pull_request.number}) {
                         state
                         mergeable
