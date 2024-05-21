@@ -1,20 +1,20 @@
 import { Octokit } from 'octokit';
 
 export const updateGithubCheckRun = async (octokit: Octokit, owner: string, repo: string, checkRunId: Number, checkRunStatus: string) => {
-    // skip "completed", because that is in the other function...and "waiting", "requested", "pending" are GitHub actions only
-    if (["queued", "in_progress"].indexOf(checkRunStatus) > -1) {
-        const checkRuns = await octokit.request('PATCH /repos/{owner}/{repo}/check-runs/{check_run_id}', {
-            owner: owner,
-            repo: repo,
-            check_run_id: checkRunId,
-            status: checkRunStatus,
-            headers: {
-                'X-GitHub-Api-Version': '2022-11-28'
-            }
-        });
-    } else {
-        console.warn(`Illegal status, "${checkRunStatus}", for a check_run`);
-    }
+    //// skip "completed", because that is in the other function...and "waiting", "requested", "pending" are GitHub actions only
+    // if (["queued", "in_progress"].indexOf(checkRunStatus) > -1) {
+    //     const checkRuns = await octokit.request('PATCH /repos/{owner}/{repo}/check-runs/{check_run_id}', {
+    //         owner: owner,
+    //         repo: repo,
+    //         check_run_id: checkRunId,
+    //         status: checkRunStatus,
+    //         headers: {
+    //             'X-GitHub-Api-Version': '2022-11-28'
+    //         }
+    //     });
+    // } else {
+    //     console.warn(`Illegal status, "${checkRunStatus}", for a check_run`);
+    // }
 }
 
 export const concludeGithubCheckRun = async (octokit: Octokit, owner: string, repo: string, checkRunId: Number, conclusion: string) => {
