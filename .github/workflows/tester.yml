@@ -1,0 +1,23 @@
+on: 
+  workflow_dispatch:
+    inputs:
+      externalId:
+        type: string
+        required: true
+        default: ''
+jobs:
+  manual:
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+      checks: write
+    steps:
+      - name: Echo the event
+        run: echo "${{ github.event }}"
+      - name: Inputs
+        run: echo "${{ inputs }}"
+      - name: GitHub CLI version
+        run: gh --version
+      - name: Only run if an admin
+        run: echo "run the GraphQL for the requested check..."
