@@ -5,10 +5,10 @@ on:
         type: string
         required: true
         default: '0'
-      externalId:
+      checkRunId:
         type: string
         required: true
-        default: ''
+        default: '0'
 jobs:
   tester:
     runs-on: ubuntu-latest
@@ -33,7 +33,7 @@ jobs:
       - name: GitHub CLI version
         run: gh --version
       - name: stuff
-        run: echo ${{github.event.repository.name}} ${{github.event.repository.owner.login}} ${{inputs.pullRequestNumber}} ${{inputs.externalId}}
+        run: echo ${{github.event.repository.name}} ${{github.event.repository.owner.login}} ${{inputs.pullRequestNumber}} ${{inputs.checkRunId}}
       - name: Run GitHub API GraphQL
         id: graphql
         run: |
@@ -41,7 +41,6 @@ jobs:
               --raw-field repositoryName="${{github.event.repository.name}}" \
               --raw-field repositoryOwner="${{github.event.repository.owner.login}}" \
               --field pullRequestNumber="${{inputs.pullRequestNumber}}" \
-              --raw-field externalId="${{inputs.externalId}}" \
               --field query='query($repositoryName: String!, $repositoryOwner: String!, $pullRequestNumber: Int!){
                 repository(followRenames: true, name: $repositoryName, owner: $repositoryOwner) {
                   pullRequest(number: $pullRequestNumber) {
@@ -69,19 +68,9 @@ jobs:
                     }
                   }
                 }
-              }' | jq -c '{
-                "state": .data.repository.pullRequest.state,
-                "reviewDecision": .data.repository.pullRequest.reviewDecision,
-                "mergeable": .data.repository.pullRequest.mergeable,
-                "status": .data.repository.pullRequest.statusCheckRollup.contexts.nodes[].status,
-                "externalId": .data.repository.pullRequest.statusCheckRollup.contexts.nodes[].externalId,
-                "checkRunId": .data.repository.pullRequest.statusCheckRollup.contexts.nodes[].databaseId,
-                "conclusion": .data.repository.pullRequest.statusCheckRollup.contexts.nodes[].conclusion,
-                "summary": .data.repository.pullRequest.statusCheckRollup.contexts.nodes[].summary,
-                "title": .data.repository.pullRequest.statusCheckRollup.contexts.nodes[].title,
-                "text": .data.repository.pullRequest.statusCheckRollup.contexts.nodes[].text
-              }'` >> "$GITHUB_OUTPUT"
+              }' | jq -c '.data.repository.pullRequest | select (.state == "OPEN") | select (.reviewDecision == "APPROVED") | select (.mergeable == "MERGEABLE") | .statusCheckRollup.contexts.nodes[] | select (.databaseId == ${{ inputs.checkRunId }}) | {status: .status, conclusion: .conclusion}''` >> "$GITHUB_OUTPUT"
       - name: State of the repo
+        if: steps.graphql.outputs.repository.status == "COMPLETED" 
         run: |
           cat << OBJECT
           ${{ toJson(steps.graphql.outputs) }}
