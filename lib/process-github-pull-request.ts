@@ -28,12 +28,20 @@ export const processGithubPullRequest = async (appId: Number, body: any) => {
             // Get the reviews for the PR
             // https://docs.github.com/en/graphql/reference/objects#repository
             console.trace(`sending Github GraphQL...`);
-            const graphql = await octokit.graphql(`query {
+            const query = `query {
                 repository(
                     followRenames: true,
                     name: "${body.pull_request.base.repo.name}",
                     owner: "${body.pull_request.base.repo.owner.login}"
                 ) {
+                    collaborators(first: 100) {
+                        edges {
+                            permission
+                            node {
+                                login
+                            }
+                        }
+                    }
                     pullRequest(number: ${body.pull_request.number}) {
                         state
                         mergeable
@@ -49,7 +57,9 @@ export const processGithubPullRequest = async (appId: Number, body: any) => {
                         }
                     }
                 }
-            }`);
+            }`;
+            console.debug(query);
+            const graphql = await octokit.graphql(query);
             console.log(`octokit.graphql.repository:\n${JSON.stringify(graphql, null, 2)}`);
 
     // // Only process PRs that are labeled upon approval
