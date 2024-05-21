@@ -81,5 +81,8 @@ jobs:
                 "text": '.data.repository.pullRequest.statusCheckRollup.contexts.nodes[].text'
               }'` >> "$GITHUB_OUTPUT"
       - name: State of the repo
-        run: echo ${{ steps.graphql.outputs.repository.state }}
+        run: |
+          cat << OBJECT
+          ${{ toJson(steps.graphql.outputs) }}
+          OBJECT
           
