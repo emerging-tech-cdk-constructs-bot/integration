@@ -165,7 +165,7 @@ export async function processGithubWebhook(event: APIGatewayEvent) {
                                 }`;
                         const graphql = await octokit.graphql(query);
                         const repositoryIntegrators = graphql.repository.collaborators.edges.filter(edge => edge.permission === "ADMIN").map(edge => edge.node.login);
-                        if (processCheckRun && repositoryIntegrators.indexOf(githubBody.sender.login) > -1)
+                        if (processCheckRun && repositoryIntegrators.indexOf(githubBody.sender.login) > -1) {
                             const nextCheckStatus = await concludeGithubCheckRun(
                                 octokit, 
                                 githubBody.repository.owner.login, 
