@@ -144,7 +144,7 @@ export async function processGithubWebhook(event: APIGatewayEvent) {
                                 githubBody.repository.owner.login, 
                                 githubBody.repository.name, 
                                 githubBody.check_run.id,
-                                "waiting",
+                                "in_progress",
                             );
                         }
                         break;            

@@ -1,8 +1,8 @@
 import { Octokit } from 'octokit';
 
 export const updateGithubCheckRun = async (octokit: Octokit, owner: string, repo: string, checkRunId: Number, checkRunStatus: string) => {
-    // skip completed, because that is in the other function...
-    if (["queued", "in_progress", "waiting", "requested", "pending"].indexOf(checkRunStatus) === -1) {
+    // skip "completed", because that is in the other function...and "waiting", "requested", "pending" are GitHub actions only
+    if (["queued", "in_progress"].indexOf(checkRunStatus) > -1) {
         const checkRuns = await octokit.request('POST /repos/{owner}/{repo}/check-runs/{check_run_id}', {
             owner: owner,
             repo: repo,
@@ -19,7 +19,7 @@ export const updateGithubCheckRun = async (octokit: Octokit, owner: string, repo
 
 export const concludeGithubCheckRun = async (octokit: Octokit, owner: string, repo: string, checkRunId: Number, conclusion: string) => {
     // skip stale, because only GitHub can ...
-    if (["action_required", "cancelled", "failure", "neutral", "success", "skipped", "time_out"].indexOf(conclusion) === -1) {
+    if (["action_required", "cancelled", "failure", "neutral", "success", "skipped", "time_out"].indexOf(conclusion) > -1) {
         const checkRuns = await octokit.request('POST /repos/{owner}/{repo}/check-runs/{check_run_id}', {
             owner: owner,
             repo: repo,
