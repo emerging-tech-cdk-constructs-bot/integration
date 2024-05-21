@@ -14,9 +14,15 @@ jobs:
       checks: write
     steps:
       - name: Echo the event
-        run: echo "${{ github.event }}"
+        run: |
+          cat << OBJECT
+          ${{ toJson(github) }}
+          OBJECT
       - name: Inputs
-        run: echo "${{ inputs }}"
+        run: |
+          cat << OBJECT
+          ${{ toJson(inputs) }}
+          OBJECT
       - name: GitHub CLI version
         run: gh --version
       - name: Only run if an admin
