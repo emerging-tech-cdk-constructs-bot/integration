@@ -77,13 +77,9 @@ export const processGithubPullRequest = async (appId: Number, body: any, externa
                     if (graphql.repository.pullRequest.latestReviews !== null) {
                         console.log(`graphql.repository.pullRequest.latestReviews.nodes:\n${JSON.stringify(graphql.repository.pullRequest.latestReviews.nodes, null, 2)}`);
 
-                        graphql.repository.pullRequest.latestReviews.nodes.forEach(latestReview => {
-                            console.warn(`login ${latestReview.author.login in repositoryIntegrators}`);
-                            console.warn(`state ${latestReview["state"] === "APPROVED"}`);
-                        });
-                        // Check if the latest reviews are from the GitHub App owner and Collaborators with "ADMIN"
+                        // Check if a latest review has an "APPROVED" from a Collaborator with "ADMIN"
                         if (graphql.repository.pullRequest.latestReviews.nodes.some(review => (
-                            (review.author.login in repositoryIntegrators) && (review["state"] === "APPROVED")
+                            (repositoryIntegrators.indexOf(review.author.login) > -1) && (review["state"] === "APPROVED")
                         ))) {
                             //TODO: Add a message to an AWS SQS FIFO Queue
                             // Use AWS Javascript SDK to send an AWS SQS SendMessageCommand
@@ -97,7 +93,7 @@ export const processGithubPullRequest = async (appId: Number, body: any, externa
                             const checkRuns = await octokit.request('POST /repos/{owner}/{repo}/check-runs', {
                                 owner: body.pull_request.base.repo.owner.login,
                                 repo: body.pull_request.base.repo.name,
-                                name: 'integration_test',
+                                name: 'integration',
                                 head_sha: body.pull_request.head.sha,
                                 status: 'queued',
                                 external_id: externalId,
