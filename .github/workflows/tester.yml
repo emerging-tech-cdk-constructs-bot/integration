@@ -47,6 +47,24 @@ jobs:
                     state
                     reviewDecision
                     mergeable
+                    statusCheckRollup {
+                      contexts(first: 100) {
+                        checkRunCount
+                        nodes {
+                          ... on CheckRun {
+                            id
+                            isRequired(pullRequestNumber: $pullRequestNumber)
+                            name
+                            status
+                            externalId
+                            conclusion
+                            summary
+                            text
+                            title
+                          }
+                        }
+                      }
+                    }
                   }
                 }
               }' | jq '.'
