@@ -31,8 +31,8 @@ export const processGithubPullRequest = async (appId: Number, body: any) => {
             const graphql = await octokit.graphql(`query {
                 repository(
                     followRenames: true,
-                    name: "${body.pull_request.head.repo.name}",
-                    owner: "${body.pull_request.head.repo.owner.login}"
+                    name: "${body.pull_request.base.repo.name}",
+                    owner: "${body.pull_request.base.repo.owner.login}"
                 ) {
                     pullRequest(number: ${body.pull_request.number}) {
                         state
