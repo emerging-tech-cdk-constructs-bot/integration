@@ -150,14 +150,12 @@ export async function processGithubWebhook(event: APIGatewayEvent) {
                         break;            
                     case "requested_action":
                         if (processCheckRun) {
-                            console.log(`ACTION:\n${JSON.stringify(githubBody[githubEvent])}`);
-                            // figure out the action and set the conclution to the id
                             const nextCheckStatus = await concludeGithubCheckRun(
                                 octokit, 
                                 githubBody.repository.owner.login, 
                                 githubBody.repository.name, 
                                 githubBody.check_run.id,
-                                "success",
+                                githubBody[githubAction].identifier,
                             );
                         }
                         break;

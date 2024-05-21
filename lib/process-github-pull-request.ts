@@ -76,6 +76,7 @@ export const processGithubPullRequest = async (octokit: Octokit, body: any, exte
                             status: 'queued',
                             external_id: externalId,
                             started_at: new Date().toISOString(),
+                            //NOTE: The identifiers will the conclusion at completion.
                             actions: [
                                 {
                                     label: 'fail',
