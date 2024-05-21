@@ -138,18 +138,34 @@ export async function processGithubWebhook(event: APIGatewayEvent) {
                 }
                 switch (githubAction) {
                     case "created":
-                        if (processCheckRun) {
-                            const nextCheckStatus = await updateGithubCheckRun(
-                                octokit, 
-                                githubBody.repository.owner.login, 
-                                githubBody.repository.name, 
-                                githubBody.check_run.id,
-                                "in_progress",
-                            );
-                        }
+                        // if (processCheckRun) {
+                        //     const nextCheckStatus = await updateGithubCheckRun(
+                        //         octokit, 
+                        //         githubBody.repository.owner.login, 
+                        //         githubBody.repository.name, 
+                        //         githubBody.check_run.id,
+                        //         "in_progress",
+                        //     );
+                        // }
                         break;            
                     case "requested_action":
-                        if (processCheckRun) {
+                        const query = `query {
+                            repository(
+                                followRenames: true,
+                                name: "${githubBody.repository.name}",
+                                owner: "${githubBody.repository.owner.login}"
+                            ) {
+                                collaborators(first: 100) {
+                                    edges {
+                                        permission
+                                        node {
+                                            login
+                                        }
+                                    }
+                                }`;
+                        const graphql = await octokit.graphql(query);
+                        const repositoryIntegrators = graphql.repository.collaborators.edges.filter(edge => edge.permission === "ADMIN").map(edge => edge.node.login);
+                        if (processCheckRun && repositoryIntegrators.indexOf(githubBody.sender.login) > -1)
                             const nextCheckStatus = await concludeGithubCheckRun(
                                 octokit, 
                                 githubBody.repository.owner.login, 
