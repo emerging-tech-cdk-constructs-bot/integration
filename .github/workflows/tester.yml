@@ -33,12 +33,12 @@ jobs:
       - name: GitHub CLI version
         run: gh --version
       - name: stuff
-        run: echo ${{event.repository.name}} ${{event.repository.owner.login}} ${{inputs.pullRequestNumber}} ${{inputs.externalId}}
+        run: echo ${{github.event.repository.name}} ${{github.event.repository.owner.login}} ${{inputs.pullRequestNumber}} ${{inputs.externalId}}
       - name: Run GitHub API GraphQL
         run: |
           gh api graphql \
-              --raw-field repositoryName="${{event.repository.name}}" \
-              --raw-field repositoryOwner="${{event.repository.owner.login}}" \
+              --raw-field repositoryName="${{github.event.repository.name}}" \
+              --raw-field repositoryOwner="${{github.event.repository.owner.login}}" \
               --raw-field pullRequestNumber="${{inputs.pullRequestNumber}}" \
               --raw-field externalId="${{inputs.externalId}}" \
               --field query='query{repository(followRenames: true, name: "integration", owner: "emerging-tech-cdk-constructs-bot") {name}}' | jq '.'
