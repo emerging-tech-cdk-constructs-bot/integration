@@ -78,8 +78,8 @@ export const processGithubPullRequest = async (appId: Number, body: any, externa
                         console.log(`graphql.repository.pullRequest.latestReviews.nodes:\n${JSON.stringify(graphql.repository.pullRequest.latestReviews.nodes, null, 2)}`);
 
                         graphql.repository.pullRequest.latestReviews.nodes.forEach(latestReview => {
-                            console.warn(`login ${latestReview.author.login}`);
-                            console.warn(`state ${latestReview["state"]}`);
+                            console.warn(`login ${latestReview.author.login in repositoryIntegrators}`);
+                            console.warn(`state ${latestReview["state"] === "APPROVED"}`);
                         });
                         // Check if the latest reviews are from the GitHub App owner and Collaborators with "ADMIN"
                         if (graphql.repository.pullRequest.latestReviews.nodes.some(review => (
