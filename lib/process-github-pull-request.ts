@@ -9,6 +9,7 @@ export const processGithubPullRequest = async (appId: Number, body: any) => {
     const githubAppSecretsString = await secretHelper.getSecret(GITHUB_APP_SECRETS_MANAGER_PREFIX.concat(String(appId)));
     const githubAppSecrets = JSON.parse(githubAppSecretsString);
     const privateKey = String(githubAppSecrets.privateKey);
+    console.trace(privateKey);
 
     const app = new App({
         appId: String(appId),
