@@ -86,12 +86,17 @@ export const processGithubPullRequest = async (octokit: Octokit, body: any, exte
                                 {
                                     label: 'pass',
                                     description: 'pass the check',
-                                    identifier: 'success'
+                                    identifier: 'success',
                                 },
+                                {
+                                    label: 'run',
+                                    description: 'run the check',
+                                    identifier: externalId,
+                                },                                
                                 {
                                     label: 'skip',
                                     description: 'skip the check',
-                                    identifier: 'skipped'
+                                    identifier: 'skipped',
                                 },
                             ],
                             output: {
