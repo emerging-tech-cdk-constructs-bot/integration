@@ -37,53 +37,49 @@ jobs:
       - name: Run GitHub API GraphQL
         id: graphql
         run: |
-          {
-            echo 'repository=<<EOF'
-            gh api graphql \
-                --raw-field repositoryName="${{github.event.repository.name}}" \
-                --raw-field repositoryOwner="${{github.event.repository.owner.login}}" \
-                --field pullRequestNumber="${{inputs.pullRequestNumber}}" \
-                --raw-field externalId="${{inputs.externalId}}" \
-                --field query='query($repositoryName: String!, $repositoryOwner: String!, $pullRequestNumber: Int!){
-                  repository(followRenames: true, name: $repositoryName, owner: $repositoryOwner) {
-                    pullRequest(number: $pullRequestNumber) {
-                      state
-                      reviewDecision
-                      mergeable
-                      statusCheckRollup {
-                        contexts(first: 100) {
-                          checkRunCount
-                          nodes {
-                            ... on CheckRun {
-                              id
-                              isRequired(pullRequestNumber: $pullRequestNumber)
-                              name
-                              status
-                              externalId
-                              conclusion
-                              summary
-                              text
-                              title
-                            }
+          echo repository=`gh api graphql \
+              --raw-field repositoryName="${{github.event.repository.name}}" \
+              --raw-field repositoryOwner="${{github.event.repository.owner.login}}" \
+              --field pullRequestNumber="${{inputs.pullRequestNumber}}" \
+              --raw-field externalId="${{inputs.externalId}}" \
+              --field query='query($repositoryName: String!, $repositoryOwner: String!, $pullRequestNumber: Int!){
+                repository(followRenames: true, name: $repositoryName, owner: $repositoryOwner) {
+                  pullRequest(number: $pullRequestNumber) {
+                    state
+                    reviewDecision
+                    mergeable
+                    statusCheckRollup {
+                      contexts(first: 100) {
+                        checkRunCount
+                        nodes {
+                          ... on CheckRun {
+                            id
+                            isRequired(pullRequestNumber: $pullRequestNumber)
+                            name
+                            status
+                            externalId
+                            conclusion
+                            summary
+                            text
+                            title
                           }
                         }
                       }
                     }
                   }
-                }' | jq '{
-                  "state": '.data.repository.pullRequest.state',
-                  "reviewDecision": '.data.repository.pullRequest.reviewDecision',
-                  "mergeable": '.data.repository.pullRequest.mergeable',
-                  "status": '.data.repository.pullRequest.statusCheckRollup.contexts.nodes[].status',
-                  "externalId": '.data.repository.pullRequest.statusCheckRollup.contexts.nodes[].externalId',
-                  "checkRunId": '.data.repository.pullRequest.statusCheckRollup.contexts.nodes[].databaseId',
-                  "conclusion": '.data.repository.pullRequest.statusCheckRollup.contexts.nodes[].conclusion',
-                  "summary": '.data.repository.pullRequest.statusCheckRollup.contexts.nodes[].summary',
-                  "title": '.data.repository.pullRequest.statusCheckRollup.contexts.nodes[].title',
-                  "text": '.data.repository.pullRequest.statusCheckRollup.contexts.nodes[].text'
-                }'
-                echo EOF >> "$GITHUB_OUTPUT"
-            }
+                }
+              }' | jq -c '{
+                "state": '.data.repository.pullRequest.state',
+                "reviewDecision": '.data.repository.pullRequest.reviewDecision',
+                "mergeable": '.data.repository.pullRequest.mergeable',
+                "status": '.data.repository.pullRequest.statusCheckRollup.contexts.nodes[].status',
+                "externalId": '.data.repository.pullRequest.statusCheckRollup.contexts.nodes[].externalId',
+                "checkRunId": '.data.repository.pullRequest.statusCheckRollup.contexts.nodes[].databaseId',
+                "conclusion": '.data.repository.pullRequest.statusCheckRollup.contexts.nodes[].conclusion',
+                "summary": '.data.repository.pullRequest.statusCheckRollup.contexts.nodes[].summary',
+                "title": '.data.repository.pullRequest.statusCheckRollup.contexts.nodes[].title',
+                "text": '.data.repository.pullRequest.statusCheckRollup.contexts.nodes[].text'
+              }'` >> "$GITHUB_OUTPUT"
       - name: State of the repo
         run: echo ${{ steps.graphql.outputs.repository.state }}
           
