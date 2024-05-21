@@ -20,4 +20,4 @@ jobs:
       - name: GitHub CLI version
         run: gh --version
       - name: Only run if an admin
-        run: echo "TODO: run the GraphQL for the requested check"
+        run: echo "run the GraphQL for the requested check..."
