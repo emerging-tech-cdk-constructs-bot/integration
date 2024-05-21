@@ -8,10 +8,13 @@ on:
 jobs:
   manual:
     runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
     permissions:
       id-token: write
       contents: read
       checks: write
+      pull-requests: read
     steps:
       - name: Echo the event
         run: |
