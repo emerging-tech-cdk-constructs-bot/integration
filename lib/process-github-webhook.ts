@@ -141,7 +141,7 @@ export async function processGithubWebhook(event: APIGatewayEvent) {
                         if (processCheckRun) {
                             const nextCheckStatus = await updateGithubCheckRun(
                                 octokit, 
-                                githubBody.respository.author.login, 
+                                githubBody.respository.owner.login, 
                                 githubBody.repository.name, 
                                 githubBody.check_run.id,
                                 "waiting",
@@ -154,7 +154,7 @@ export async function processGithubWebhook(event: APIGatewayEvent) {
                             // figure out the action and set the conclution to the id
                             const nextCheckStatus = await concludeGithubCheckRun(
                                 octokit, 
-                                githubBody.respository.author.login, 
+                                githubBody.respository.owner.login, 
                                 githubBody.repository.name, 
                                 githubBody.check_run.id,
                                 "success",
