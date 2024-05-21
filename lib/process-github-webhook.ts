@@ -1,5 +1,11 @@
 import { APIGatewayEvent } from 'aws-lambda';
 import { processGithubPullRequest } from './process-github-pull-request';
+import { updateGithubCheckRun, concludeGithubCheckRun } from './process-github-check-run';
+import { App } from 'octokit';
+import SecretHelper from './secrets-helper';
+import {
+    GITHUB_APP_SECRETS_MANAGER_PREFIX,
+ } from './verify-signature';
 
 export const X_GITHUB_DELIVERY = "X-GitHub-Delivery"; // A globally unique identifier (GUID) to identify the delivery.
 // const X_GITHUB_HOOK_ID = "X-GitHub-Hook-ID"; // The unique identifier of the webhook.
@@ -9,6 +15,7 @@ export const X_GITHUB_HOOK_INSTALLATION_TARGET_ID = "X-GitHub-Hook-Installation-
 export const X_HUB_SIGNATURE_256 = "X-Hub-Signature-256";
 
 export async function processGithubWebhook(event: APIGatewayEvent) {
+    console.trace(`Headers:\n${JSON.stringify(event.headers)}`);
     const githubDelivery = event.headers[X_GITHUB_DELIVERY];
     if (githubDelivery === undefined || githubDelivery === null || githubDelivery === "") {
         throw new Error(`Missing or Invalid "${X_GITHUB_DELIVERY}" in headers`);
@@ -23,122 +30,170 @@ export async function processGithubWebhook(event: APIGatewayEvent) {
     const appId = Number(event.headers[X_GITHUB_HOOK_INSTALLATION_TARGET_ID]);
 
     const githubBody = JSON.parse(String(event.body));
-    const githubAction = githubBody["action"];
-    const githubPayload = githubBody[githubEvent];
-    let processPullRequest = false;
+    console.trace(`${JSON.stringify(githubBody)}`);
 
-    console.debug(`${githubEvent}.${githubAction}`);
-    switch (githubEvent) {
-        case "pull_request":
-            console.trace(`a "pull_request", so process...`);
-            processPullRequest = true;
-            switch (githubAction) {
-                case "opened":
-                    break;
-                case "reopened":
-                    break;
-                case "closed":
-                    console.trace(`but "closed" so don't process...`);
-                    processPullRequest = false;
-                    break;            
-                case "synchronize":
-                    break;
-                case "labeled":
-                    break;
-                case "unlabeled":
-                    console.trace(`but "unlabeled" so don't process...`);
-                    processPullRequest = false;
-                    break;            
-                case "ready_for_review":
-                    break;
-                case "review_requested":
-                    break;
-                case "review_request_removed":
-                    console.trace(`but "review_request_removed" so don't process...`);
-                    processPullRequest = false;
-                    break;            
-                case "synchronized":
-                    break;
-                default:
-                    console.trace(`but no action registered, so don't process...`);
-                    console.warn(`Unhandled action`);
-                    processPullRequest = false;
-                    break;
-            }
-            break;
-        case "pull_request_review": // Add "pull_request" to this???
-            console.trace(`a "pull_request_review", so process...`);
-            processPullRequest = true;
-            switch(githubAction) {
-                case "submitted":
-                    break;
-                case "edited":
-                    break;
-                case "dismissed":
-                    console.trace(`but "dismissed" so don't process...`);
-                    processPullRequest = false;
-                    break;            
-                default:
-                    console.trace(`but no action registered, so don't process...`);
-                    console.warn(`Unhandled action`);
-                    processPullRequest = false;
-                    break;
-            }
-            break;
-        case "check_suite":
-            switch (githubAction) {
-                case "requested":
-                    break;            
-                case "requested_in_branch":
-                    break;
-                case "rerequested":
-                    break;
-                case "rerequested_in_branch":
-                    break;            
-                case "completed":
-                    break;
-                default:
-                    console.warn(`Unhandled action`);
-                    break;
-            }
-            break;
-        case "check_run":
-            switch (githubAction) {
-                case "created":
-                    break;            
-                case "requested_action":
-                    break;
-                case "rerequested_action":
-                    break;
-                case "completed":
-                    break;            
-                case "queued":
-                    break;
-                default:
-                    console.warn(`Unhandled action`);
-                    break;
-            }
-            //TODO: See if the check_suite.app.id is this app
-            //TODO: 
-            // const checkRunRequestAction = githubPayload["action"];
-            // const checkRunPayload = githubPayload[githubEvent];
-            // const checkRunId = checkRunPayload.id;
-            // const checkRunStatus = checkRunPayload["state"];
-            // const checkRunCheckSuiteAppId = checkRunPayload.check_suite.app.id;
-            // if this is the "integration" that "queued"
-            break;
-        default:
-            console.warn(`Unhandled event`);
-            processPullRequest = false;
-            break;
-    }
+    if (("installation" in githubBody) && ("id" in githubBody.installation)) {
+        console.trace(`Getting the secrets for the GitHub app...`);
+        const secretHelper = SecretHelper.getInstance();
+        const githubAppSecretsString = await secretHelper.getSecret(GITHUB_APP_SECRETS_MANAGER_PREFIX.concat(String(appId)));
+        const githubAppSecrets = JSON.parse(githubAppSecretsString);
+        const privateKey = String(githubAppSecrets.privateKey);
+        console.trace(privateKey);
+        console.trace(atob(privateKey));
+    
+        const app = new App({
+            appId: String(appId),
+            privateKey: atob(privateKey),
+        });
 
-    if (processPullRequest) {
-        console.debug(`processing pull request`);
-        const pullRequest = await processGithubPullRequest(appId, githubBody, githubDelivery);
+        // https://github.com/octokit/octokit.js/?tab=readme-ov-file#authentication
+        const octokit = await app.getInstallationOctokit(
+            Number(githubBody.installation.id)
+        );
+
+        const githubAction = githubBody["action"];
+        let processPullRequest = false;
+        let processCheckRun = false;
+
+        console.debug(`${githubEvent}.${githubAction}`);
+        switch (githubEvent) {
+            case "pull_request":
+                console.trace(`a "pull_request", so process...`);
+                processPullRequest = true;
+                switch (githubAction) {
+                    case "opened":
+                        break;
+                    case "reopened":
+                        break;
+                    case "closed":
+                        console.trace(`but "closed" so don't process...`);
+                        processPullRequest = false;
+                        break;            
+                    case "synchronize":
+                        break;
+                    case "labeled":
+                        break;
+                    case "unlabeled":
+                        console.trace(`but "unlabeled" so don't process...`);
+                        processPullRequest = false;
+                        break;            
+                    case "ready_for_review":
+                        break;
+                    case "review_requested":
+                        break;
+                    case "review_request_removed":
+                        console.trace(`but "review_request_removed" so don't process...`);
+                        processPullRequest = false;
+                        break;            
+                    case "synchronized":
+                        break;
+                    default:
+                        console.trace(`but no action registered, so don't process...`);
+                        console.warn(`Unhandled action`);
+                        processPullRequest = false;
+                        break;
+                }
+                break;
+            case "pull_request_review": // Add "pull_request" to this???
+                console.trace(`a "pull_request_review", so process...`);
+                processPullRequest = true;
+                switch(githubAction) {
+                    case "submitted":
+                        break;
+                    case "edited":
+                        break;
+                    case "dismissed":
+                        console.trace(`but "dismissed" so don't process...`);
+                        processPullRequest = false;
+                        break;            
+                    default:
+                        console.trace(`but no action registered, so don't process...`);
+                        console.warn(`Unhandled action`);
+                        processPullRequest = false;
+                        break;
+                }
+                break;
+            case "check_suite":
+                switch (githubAction) {
+                    case "requested":
+                        break;            
+                    case "requested_in_branch":
+                        break;
+                    case "rerequested":
+                        break;
+                    case "rerequested_in_branch":
+                        break;            
+                    case "completed":
+                        break;
+                    default:
+                        console.warn(`Unhandled action`);
+                        break;
+                }
+                break;
+            case "check_run":
+                if (githubBody.check_run.name === "integration" && githubBody.check_run.app.id === appId) {
+                    processCheckRun = true;
+                } else {
+                    console.debug(`Skip, because not an "integration" check_run for the app`)
+                }
+                switch (githubAction) {
+                    case "created":
+                        if (processCheckRun) {
+                            const nextCheckStatus = await updateGithubCheckRun(
+                                octokit, 
+                                githubBody.respository.author.login, 
+                                githubBody.repository.name, 
+                                githubBody.check_run.id,
+                                "waiting",
+                            );
+                        }
+                        break;            
+                    case "requested_action":
+                        if (processCheckRun) {
+                            console.log(`ACTION:\n${JSON.stringify(githubBody[githubEvent])}`);
+                            // figure out the action and set the conclution to the id
+                            const nextCheckStatus = await concludeGithubCheckRun(
+                                octokit, 
+                                githubBody.respository.author.login, 
+                                githubBody.repository.name, 
+                                githubBody.check_run.id,
+                                "success",
+                            );
+                        }
+                        break;
+                    case "rerequested_action":
+                        break;
+                    case "completed":
+                        break;            
+                    case "queued":
+                        break;
+                    default:
+                        console.warn(`Unhandled action`);
+                        break;
+                }
+                //TODO: See if the check_suite.app.id is this app
+                //TODO: 
+                // const checkRunRequestAction = githubPayload["action"];
+                // const checkRunPayload = githubPayload[githubEvent];
+                // const checkRunId = checkRunPayload.id;
+                // const checkRunStatus = checkRunPayload["state"];
+                // const checkRunCheckSuiteAppId = checkRunPayload.check_suite.app.id;
+                // if this is the "integration" that "queued"
+                break;
+            default:
+                console.warn(`Unhandled event`);
+                processPullRequest = false;
+                break;
+        }
+
+        if (processPullRequest) {
+            console.debug(`processing pull request`);
+            const pullRequest = await processGithubPullRequest(octokit, githubBody, githubDelivery);
+        } else {
+            console.debug(`not going to process pull request due to event and action`);
+        }
     } else {
-        console.debug(`not going to process pull request due to event and action`);
+        console.warn(`no "installation.id", so nothing the GitHub app is going to do...`)
     }
-
     return githubBody;
 }

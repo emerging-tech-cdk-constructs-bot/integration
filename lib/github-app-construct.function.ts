@@ -5,8 +5,8 @@ import { verifySignature } from './verify-signature';
 //TODO: Implement when Amazon API Gateway can reduce the time to first byte (TTFB) for AWS Lambda.
 // https://aws.amazon.com/blogs/compute/introducing-aws-lambda-response-streaming/
 export const handler = async (event: APIGatewayEvent, context: Context): Promise<APIGatewayProxyResult> => {
-    console.debug(`Event:\n${JSON.stringify(event, null, 2)}`);
-    console.debug(`Context:\n${JSON.stringify(context, null, 2)}`);
+    console.trace(`Event:\n${JSON.stringify(event, null, 2)}`);
+    console.trace(`Context:\n${JSON.stringify(context, null, 2)}`);
 
     try {    
         if (!await verifySignature(event)) {
@@ -21,7 +21,7 @@ export const handler = async (event: APIGatewayEvent, context: Context): Promise
                 }),
             };
         } else {
-            console.log(`Signature verification succeeded`);
+            console.debug(`Signature verification succeeded`);
             return {
                 statusCode: 202,
                 headers: {
