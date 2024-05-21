@@ -39,7 +39,7 @@ jobs:
           gh api graphql \
               --raw-field repositoryName="${{github.event.repository.name}}" \
               --raw-field repositoryOwner="${{github.event.repository.owner.login}}" \
-              --raw-field pullRequestNumber="${{inputs.pullRequestNumber}}" \
+              --field pullRequestNumber="${{inputs.pullRequestNumber}}" \
               --raw-field externalId="${{inputs.externalId}}" \
               --field query='query($repositoryName: String!, $repositoryOwner: String!, $pullRequestNumber: Int!){
                 repository(followRenames: true, name: $repositoryName, owner: $repositoryOwner) {
