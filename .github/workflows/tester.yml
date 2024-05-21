@@ -25,5 +25,5 @@ jobs:
           OBJECT
       - name: GitHub CLI version
         run: gh --version
-      - name: Only run if an admin
-        run: echo "run the GraphQL for the requested check..."
+      - name: Run GitHub API GraphQL
+        run: gh api graphql --field query='query{meta{hookIpAddresses}}' | jq -c '.data.meta.hookIpAddresses'
