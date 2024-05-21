@@ -15,7 +15,7 @@ export const X_GITHUB_HOOK_INSTALLATION_TARGET_ID = "X-GitHub-Hook-Installation-
 export const X_HUB_SIGNATURE_256 = "X-Hub-Signature-256";
 
 export async function processGithubWebhook(event: APIGatewayEvent) {
-    console.trace(`Headers:\n${JSON.stringify(event.headers)}`);
+    console.trace(`"headers":\n${JSON.stringify(event.headers)}`);
     const githubDelivery = event.headers[X_GITHUB_DELIVERY];
     if (githubDelivery === undefined || githubDelivery === null || githubDelivery === "") {
         throw new Error(`Missing or Invalid "${X_GITHUB_DELIVERY}" in headers`);
@@ -30,7 +30,7 @@ export async function processGithubWebhook(event: APIGatewayEvent) {
     const appId = Number(event.headers[X_GITHUB_HOOK_INSTALLATION_TARGET_ID]);
 
     const githubBody = JSON.parse(String(event.body));
-    console.trace(`${JSON.stringify(githubBody)}`);
+    console.debug(`"body":\n${JSON.stringify(githubBody)}`);
 
     if (("installation" in githubBody) && ("id" in githubBody.installation)) {
         console.trace(`Getting the secrets for the GitHub app...`);
@@ -149,6 +149,7 @@ export async function processGithubWebhook(event: APIGatewayEvent) {
                         // }
                         break;            
                     case "requested_action":
+                        // TODO: Paginate, retry, etc.
                         const query = `query {
                             repository(
                                 followRenames: true,
@@ -168,13 +169,17 @@ export async function processGithubWebhook(event: APIGatewayEvent) {
                         const graphql = await octokit.graphql(query);
                         const repositoryIntegrators = graphql.repository.collaborators.edges.filter(edge => edge.permission === "ADMIN").map(edge => edge.node.login);
                         if (processCheckRun && repositoryIntegrators.indexOf(githubBody.sender.login) > -1) {
+                            console.debug(`Completing the check`);
                             const nextCheckStatus = await concludeGithubCheckRun(
                                 octokit, 
                                 githubBody.repository.owner.login, 
                                 githubBody.repository.name, 
                                 githubBody.check_run.id,
                                 githubBody[githubAction].identifier,
+                                `${githubBody.sender.login} processed the request`,
                             );
+                        } else {
+                            console.debug(`Non-ADMIN attempted to take action`);
                         }
                         break;
                     case "rerequested_action":
