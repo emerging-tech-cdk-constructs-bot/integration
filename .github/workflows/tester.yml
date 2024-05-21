@@ -1,6 +1,10 @@
 on: 
   workflow_dispatch:
     inputs:
+      pullRequestNumber:
+        type: string
+        required: true
+        default: '0'
       externalId:
         type: string
         required: true
@@ -28,5 +32,13 @@ jobs:
           OBJECT
       - name: GitHub CLI version
         run: gh --version
+      - name: stuff
+        run: echo ${{event.repository.name}} ${{event.repository.owner.login}} ${{inputs.pullRequestNumber}} ${{inputs.externalId}}
       - name: Run GitHub API GraphQL
-        run: gh api graphql --field query='query{meta{hookIpAddresses}}' | jq -c '.data.meta.hookIpAddresses'
+        run: |
+          gh api graphql \
+              --raw-field repositoryName="${{event.repository.name}}" \
+              --raw-field repositoryOwner="${{event.repository.owner.login}}" \
+              --raw-field pullRequestNumber="${{inputs.pullRequestNumber}}" \
+              --raw-field externalId="${{inputs.externalId}}" \
+              --field query='query{repository(followRenames: true, name: "integration", owner: "emerging-tech-cdk-constructs-bot") {name}}' | jq '.'
