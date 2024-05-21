@@ -10,10 +10,11 @@ export const processGithubPullRequest = async (appId: Number, body: any) => {
     const githubAppSecrets = JSON.parse(githubAppSecretsString);
     const privateKey = String(githubAppSecrets.privateKey);
     console.trace(privateKey);
+    console.trace(atob(privateKey));
 
     const app = new App({
         appId: String(appId),
-        privateKey: privateKey,
+        privateKey: atob(privateKey),
     });
 
     if (("installation" in body) && ("id" in body.installation)) {
