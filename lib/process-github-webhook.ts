@@ -30,6 +30,7 @@ export async function processGithubWebhook(event: APIGatewayEvent) {
     console.debug(`${githubEvent}.${githubAction}`);
     switch (githubEvent) {
         case "pull_request":
+            console.trace(`a "pull_request", so process...`);
             processPullRequest = true;
             switch (githubAction) {
                 case "opened":
@@ -37,6 +38,7 @@ export async function processGithubWebhook(event: APIGatewayEvent) {
                 case "reopened":
                     break;
                 case "closed":
+                    console.trace(`but "closed" so don't process...`);
                     processPullRequest = false;
                     break;            
                 case "synchronize":
@@ -44,6 +46,7 @@ export async function processGithubWebhook(event: APIGatewayEvent) {
                 case "labeled":
                     break;
                 case "unlabeled":
+                    console.trace(`but "unlabeled" so don't process...`);
                     processPullRequest = false;
                     break;            
                 case "ready_for_review":
@@ -51,18 +54,20 @@ export async function processGithubWebhook(event: APIGatewayEvent) {
                 case "review_requested":
                     break;
                 case "review_request_removed":
+                    console.trace(`but "review_request_removed" so don't process...`);
                     processPullRequest = false;
                     break;            
                 case "synchronized":
                     break;
                 default:
+                    console.trace(`but no action registered, so don't process...`);
                     console.warn(`Unhandled action`);
                     processPullRequest = false;
                     break;
             }
             break;
         case "pull_request_review": // Add "pull_request" to this???
-            // actions: submitted, edited, dismissed
+            console.trace(`a "pull_request_review", so process...`);
             processPullRequest = true;
             switch(githubAction) {
                 case "submitted":
@@ -70,9 +75,11 @@ export async function processGithubWebhook(event: APIGatewayEvent) {
                 case "edited":
                     break;
                 case "dismissed":
+                    console.trace(`but "dismissed" so don't process...`);
                     processPullRequest = false;
                     break;            
                 default:
+                    console.trace(`but no action registered, so don't process...`);
                     console.warn(`Unhandled action`);
                     processPullRequest = false;
                     break;
@@ -92,7 +99,6 @@ export async function processGithubWebhook(event: APIGatewayEvent) {
                     break;
                 default:
                     console.warn(`Unhandled action`);
-                    processPullRequest = false;
                     break;
             }
             break;
@@ -110,7 +116,6 @@ export async function processGithubWebhook(event: APIGatewayEvent) {
                     break;
                 default:
                     console.warn(`Unhandled action`);
-                    processPullRequest = false;
                     break;
             }
             //TODO: See if the check_suite.app.id is this app
@@ -128,10 +133,11 @@ export async function processGithubWebhook(event: APIGatewayEvent) {
             break;
     }
 
-    try {
-        const pullRequest = await processGithubPullRequest(appId, githubBody); //, githubBody["pull_request"]);
-    } catch (error) {
-        console.error(error);
+    if (processPullRequest) {
+        console.debug(`processing pull request`);
+        const pullRequest = await processGithubPullRequest(appId, githubBody, githubDelivery);
+    } else {
+        console.debug(`not going to process pull request due to event and action`);
     }
 
     return githubBody;
