@@ -1,5 +1,5 @@
 import { APIGatewayEvent } from 'aws-lambda';
-import SecretHelper from './secrets-helper';
+import { processGithubPullRequest } from './process-github-pull-request';
 
 export const X_GITHUB_DELIVERY = "X-GitHub-Delivery"; // A globally unique identifier (GUID) to identify the delivery.
 // const X_GITHUB_HOOK_ID = "X-GitHub-Hook-ID"; // The unique identifier of the webhook.
@@ -23,48 +23,111 @@ export async function processGithubWebhook(event: APIGatewayEvent) {
     const appId = Number(event.headers[X_GITHUB_HOOK_INSTALLATION_TARGET_ID]);
 
     const githubBody = JSON.parse(String(event.body));
-    const githubAction = githubBody["action"]; // all but the "ping" event
-    console.log(`Github "${githubEvent}.${githubAction}"`)
-    console.log(`AppId(${appId}) with Body:\n${JSON.stringify(githubBody, null, 2)}`);
-
+    const githubAction = githubBody["action"];
     const githubPayload = githubBody[githubEvent];
+    let processPullRequest = false;
 
-    // const pullRequestPayload = githubBody["pull_request"];
+    console.debug(`${githubEvent}.${githubAction}`);
+    switch (githubEvent) {
+        case "pull_request":
+            processPullRequest = true;
+            switch (githubAction) {
+                case "opened":
+                    break;
+                case "reopened":
+                    break;
+                case "closed":
+                    processPullRequest = false;
+                    break;            
+                case "synchronize":
+                    break;
+                case "labeled":
+                    break;
+                case "unlabeled":
+                    processPullRequest = false;
+                    break;            
+                case "ready_for_review":
+                    break;
+                case "review_requested":
+                    break;
+                case "review_request_removed":
+                    processPullRequest = false;
+                    break;            
+                case "synchronized":
+                    break;
+                default:
+                    console.warn(`Unhandled action`);
+                    processPullRequest = false;
+                    break;
+            }
+            break;
+        case "pull_request_review": // Add "pull_request" to this???
+            // actions: submitted, edited, dismissed
+            processPullRequest = true;
+            switch(githubAction) {
+                case "submitted":
+                    break;
+                case "edited":
+                    break;
+                case "dismissed":
+                    processPullRequest = false;
+                    break;            
+                default:
+                    console.warn(`Unhandled action`);
+                    processPullRequest = false;
+                    break;
+            }
+            break;
+        case "check_suite":
+            switch (githubAction) {
+                case "requested":
+                    break;            
+                case "requested_in_branch":
+                    break;
+                case "rerequested":
+                    break;
+                case "rerequested_in_branch":
+                    break;            
+                case "completed":
+                    break;
+                default:
+                    console.warn(`Unhandled action`);
+                    processPullRequest = false;
+                    break;
+            }
+            break;
+        case "check_run":
+            switch (githubAction) {
+                case "created":
+                    break;            
+                case "requested_action":
+                    break;
+                case "rerequested_action":
+                    break;
+                case "completed":
+                    break;            
+                case "queued":
+                    break;
+                default:
+                    console.warn(`Unhandled action`);
+                    processPullRequest = false;
+                    break;
+            }
+            //TODO: See if the check_suite.app.id is this app
+            //TODO: 
+            // const checkRunRequestAction = githubPayload["action"];
+            // const checkRunPayload = githubPayload[githubEvent];
+            // const checkRunId = checkRunPayload.id;
+            // const checkRunStatus = checkRunPayload["state"];
+            // const checkRunCheckSuiteAppId = checkRunPayload.check_suite.app.id;
+            // if this is the "integration" that "queued"
+            break;
+        default:
+            console.warn(`Unhandled event`);
+            processPullRequest = false;
+            break;
+    }
+    const pullRequest = await processGithubPullRequest(appId, githubBody); //, githubBody["pull_request"]);
 
-    // switch (githubEvent) {
-    //     case "installation":
-    //         // actions: created, deleted, new_permissions_accepted
-    //         break;
-    //     case "pull_request":
-    //         // actions: opened, reopened, closed, synchronize, labeled, unlabeled, ready_for_review, review_requested, review_request_removed, synchronized, 
-    //         const pullRequest = await processGithubPullRequest(app, pullRequestPayload);
-    //         break;
-    //     case "pull_request_review": // Add "pull_request" to this???
-    //         // actions: submitted, edited, dismissed
-    //         const pullRequestReview = await processGithubPullRequest(app, pullRequestPayload);
-    //         break;
-    //     case "check_suite":
-    //         // actions: requested, requested_in_branch, rerequested, rerequested_in_branch, completed
-    //         const checkSuiteRequestAction = githubPayload["action"];
-    //         const checkSuitePayload = githubPayload[githubEvent];
-    //         break;
-    //     case "check_run":
-    //         // actions: created, requested_action, rerequested_action, completed, queued
-    //         //TODO: See if the check_suite.app.id is this app
-    //         //TODO: 
-    //         // const checkRunRequestAction = githubPayload["action"];
-    //         // const checkRunPayload = githubPayload[githubEvent];
-    //         // const checkRunId = checkRunPayload.id;
-    //         // const checkRunStatus = checkRunPayload["state"];
-    //         // const checkRunCheckSuiteAppId = checkRunPayload.check_suite.app.id;
-    //         // if this is the "integration" that "queued"
-    //         break;
-    //     case "ping":
-    //         break;
-    //     default:
-    //         console.warn(`Unhandled event`);
-    //         break;
-    // }
-
-    return githubPayload;
+    return githubBody;
 }
