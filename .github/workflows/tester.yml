@@ -37,8 +37,7 @@ jobs:
       - name: Run GitHub API GraphQL
         id: graphql
         run: |
-          # echo repository=`
-          gh api graphql \
+          echo repository=`gh api graphql \
               --raw-field repositoryName="${{github.event.repository.name}}" \
               --raw-field repositoryOwner="${{github.event.repository.owner.login}}" \
               --field pullRequestNumber="${{inputs.pullRequestNumber}}" \
@@ -58,6 +57,7 @@ jobs:
                             isRequired(pullRequestNumber: $pullRequestNumber)
                             name
                             status
+                            databaseId
                             externalId
                             conclusion
                             summary
@@ -80,7 +80,7 @@ jobs:
                 "summary": .data.repository.pullRequest.statusCheckRollup.contexts.nodes[].summary,
                 "title": .data.repository.pullRequest.statusCheckRollup.contexts.nodes[].title,
                 "text": .data.repository.pullRequest.statusCheckRollup.contexts.nodes[].text
-              }' # ` >> "$GITHUB_OUTPUT"
+              }'` >> "$GITHUB_OUTPUT"
       - name: State of the repo
         run: |
           cat << OBJECT
