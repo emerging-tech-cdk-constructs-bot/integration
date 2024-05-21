@@ -69,16 +69,16 @@ jobs:
                   }
                 }
               }' | jq -c '{
-                "state": '.data.repository.pullRequest.state',
-                "reviewDecision": '.data.repository.pullRequest.reviewDecision',
-                "mergeable": '.data.repository.pullRequest.mergeable',
-                "status": '.data.repository.pullRequest.statusCheckRollup.contexts.nodes[].status',
-                "externalId": '.data.repository.pullRequest.statusCheckRollup.contexts.nodes[].externalId',
-                "checkRunId": '.data.repository.pullRequest.statusCheckRollup.contexts.nodes[].databaseId',
-                "conclusion": '.data.repository.pullRequest.statusCheckRollup.contexts.nodes[].conclusion',
-                "summary": '.data.repository.pullRequest.statusCheckRollup.contexts.nodes[].summary',
-                "title": '.data.repository.pullRequest.statusCheckRollup.contexts.nodes[].title',
-                "text": '.data.repository.pullRequest.statusCheckRollup.contexts.nodes[].text'
+                "state": .data.repository.pullRequest.state,
+                "reviewDecision": .data.repository.pullRequest.reviewDecision,
+                "mergeable": .data.repository.pullRequest.mergeable,
+                "status": .data.repository.pullRequest.statusCheckRollup.contexts.nodes[].status,
+                "externalId": .data.repository.pullRequest.statusCheckRollup.contexts.nodes[].externalId,
+                "checkRunId": .data.repository.pullRequest.statusCheckRollup.contexts.nodes[].databaseId,
+                "conclusion": .data.repository.pullRequest.statusCheckRollup.contexts.nodes[].conclusion,
+                "summary": .data.repository.pullRequest.statusCheckRollup.contexts.nodes[].summary,
+                "title": .data.repository.pullRequest.statusCheckRollup.contexts.nodes[].title,
+                "text": .data.repository.pullRequest.statusCheckRollup.contexts.nodes[].text
               }'` >> "$GITHUB_OUTPUT"
       - name: State of the repo
         run: |
