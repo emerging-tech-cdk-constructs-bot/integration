@@ -27,6 +27,7 @@ export const processGithubPullRequest = async (appId: Number, body: any) => {
 
             // Get the reviews for the PR
             // https://docs.github.com/en/graphql/reference/objects#repository
+            console.trace(`sending Github GraphQL...`);
             const graphql = await octokit.graphql(`query {
                 repository(
                     followRenames: true,
