@@ -3,6 +3,18 @@ import { Octokit } from 'octokit';
 export const updateGithubCheckRun = async (octokit: Octokit, owner: string, repo: string, checkRunId: Number, checkRunStatus: string) => {
     // skip "completed", because that is in the other function...and "waiting", "requested", "pending" are GitHub actions only
     if (["queued", "in_progress"].indexOf(checkRunStatus) > -1) {
+
+        const checkRun = await octokit.request('GET /repos/{owner}/{repo}/check-runs/{check_run_id}', {
+            owner: owner,
+            repo: repo,
+            check_run_id: checkRunId,
+            headers: {
+                'X-GitHub-Api-Version': '2022-11-28'
+            }
+        });
+
+        console.warn(`CHECKRUN:\n${JSON.stringify(checkRun)}`);
+
         const checkRuns = await octokit.request('POST /repos/{owner}/{repo}/check-runs/{check_run_id}', {
             owner: owner,
             repo: repo,
