@@ -4,7 +4,7 @@ export const processGithubPullRequest = async (octokit: Octokit, body: any, exte
     if ("pull_request" in body && "head" in body.pull_request && "base" in body.pull_request) {
         // Only process PRs that are labeled upon approval
         if (body.pull_request.labels.some(label => label.name === "integration")) {
-            console.log(`PR labeled with "integration"`);
+            console.debug(`PR labeled with "integration"`);
             // Get the reviews for the PR
             // https://docs.github.com/en/graphql/reference/objects#repository
             console.trace(`sending Github GraphQL...`);
@@ -40,20 +40,20 @@ export const processGithubPullRequest = async (octokit: Octokit, body: any, exte
             }`;
             console.debug(query);
             const graphql = await octokit.graphql(query);
-            console.log(`octokit.graphql.repository:\n${JSON.stringify(graphql, null, 2)}`);
+            console.debug(`octokit.graphql.repository:\n${JSON.stringify(graphql, null, 2)}`);
 
             if ((graphql.repository.pullRequest["state"] === "OPEN") && // not "CLOSED" nor "MERGED"
             (graphql.repository.pullRequest.reviewDecision === "APPROVED") && // not "REVIEW_REQUIRED" nor "CHANGES_REQUIRED"
             (graphql.repository.pullRequest.mergeable === "MERGEABLE") // not "CONFLICTING" nor "UNKNOWN"
             ) {
-                console.log(`PR is "OPEN" and "APPROVED" and "MERGEABLE"`);
+                console.debug(`PR is "OPEN" and "APPROVED" and "MERGEABLE"`);
 
                 // The GitHub App owner and Collaborators with "ADMIN"
                 const repositoryIntegrators = graphql.repository.collaborators.edges.filter(edge => edge.permission === "ADMIN").map(edge => edge.node.login);
-                console.log(`repositoryIntegrators:\n${JSON.stringify(repositoryIntegrators, null, 2)}`);
+                console.debug(`repositoryIntegrators:\n${JSON.stringify(repositoryIntegrators, null, 2)}`);
 
                 if (graphql.repository.pullRequest.latestReviews !== null) {
-                    console.log(`graphql.repository.pullRequest.latestReviews.nodes:\n${JSON.stringify(graphql.repository.pullRequest.latestReviews.nodes, null, 2)}`);
+                    console.debug(`graphql.repository.pullRequest.latestReviews.nodes:\n${JSON.stringify(graphql.repository.pullRequest.latestReviews.nodes, null, 2)}`);
 
                     // Check if a latest review has an "APPROVED" from a Collaborator with "ADMIN"
                     if (graphql.repository.pullRequest.latestReviews.nodes.some(review => (
@@ -96,28 +96,28 @@ export const processGithubPullRequest = async (octokit: Octokit, body: any, exte
                             ],
                             output: {
                                 title: 'Integration Test Report',
-                                summary: 'This runs an integration test',
+                                summary: 'This will run a deployment and integration test in an AWS account',
                                 text: ''
                             },
                             headers: {
                                 'X-GitHub-Api-Version': '2022-11-28'
                             }
                         });
-                        console.log(`octokit.request.check-runs:\n${JSON.stringify(checkRuns, null, 2)}`);
+                        console.debug(`octokit.request.check-runs:\n${JSON.stringify(checkRuns, null, 2)}`);
                     } else {
-                        console.log(`No integrators "APPROVED"`);
+                        console.debug(`No integrators "APPROVED"`);
                     }
                 } else {
                     //TOOD: Is there ever a case where this can happen?
                     console.warn(`How come there are no reviews when "APPROVED"???`);
                 }
             } else {
-                console.log(`PR not "OPEN" or "APPROVED" or "MERGEABLE"`);
+                console.debug(`PR not "OPEN" or "APPROVED" or "MERGEABLE"`);
             }
         } else {
-            console.log(`PR not labeled with "integration"`);
+            console.debug(`PR not labeled with "integration"`);
         }
     } else {
-        console.log(`There isn't a PR with a head and base: ${JSON.stringify(body, null, 2)}`)
+        console.debug(`There isn't a PR with a head and base: ${JSON.stringify(body, null, 2)}`)
     }
 }
