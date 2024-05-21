@@ -35,6 +35,8 @@ export default class SecretHelper {
     if (!this.secret.has(secretId)) {
       const secretValue = await secretsManager.getSecretValue({ SecretId: secretId }).promise();
       this.secret.set(secretId, <string>secretValue.SecretString);
+    } else {
+      console.trace(`using prefetched version...`)
     }
 
     return <string>this.secret.get(secretId);
