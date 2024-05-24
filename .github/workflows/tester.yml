@@ -79,10 +79,10 @@ jobs:
           cat << OBJECT
           ${{ steps.graphql.outputs.checkRun }}
           OBJECT
-      - name: Debug the GitHub API GraphQL checkRun's status
+      - name: Debug the GitHub API GraphQL checkRun
         run: |
           cat << OBJECT
-          ${{ fromJSON(steps.graphql.outputs.checkRun.status) }}
+          ${{ toJSON(steps.graphql.outputs.checkRun) }}
           OBJECT
       - name: Set the properties
         id: props
