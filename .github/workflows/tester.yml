@@ -20,19 +20,19 @@ jobs:
       checks: write
       pull-requests: read
     steps:
-      - name: Echo the event
+      - name: Show the github
         run: |
           cat << OBJECT
           ${{ toJson(github) }}
           OBJECT
-      - name: Inputs
+      - name: Show the inputs
         run: |
           cat << OBJECT
           ${{ toJson(inputs) }}
           OBJECT
       - name: GitHub CLI version
         run: gh --version
-      - name: stuff
+      - name: Parameters to send into GitHub's CLI API
         run: echo ${{github.event.repository.name}} ${{github.event.repository.owner.login}} ${{inputs.pullRequestNumber}} ${{inputs.checkRunId}}
       - name: Run GitHub API GraphQL
         id: graphql
@@ -83,12 +83,10 @@ jobs:
           echo isRequired=`echo '${{ steps.graphql.outputs.checkRun }}' | jq -r '.isRequired'` >> "$GITHUB_OUTPUT";
           echo name=`echo '${{ steps.graphql.outputs.checkRun }}' | jq -r '.name'` >> "$GITHUB_OUTPUT";
       - name: If the check run status is completed
-        if: steps.props.outputs.status == 'COMPLETED'
+        if: steps.props.outputs.name == 'integration' && steps.props.outputs.status == 'COMPLETED'
         run: |
-          echo "COMPLETED ${{ steps.props.outputs.status }}";
-          echo "COMPLETED ${{ steps.props.outputs.name }}";
+          echo "COMPLETED conclusion is ${{ steps.props.outputs.conclusion }}";
       - name: If the status is not completed
-        if: steps.props.outputs.status != 'COMPLETED'
+        if: steps.props.outputs.name == 'integration' && steps.props.outputs.status != 'COMPLETED'
         run: |
-          echo "NOT COMPLETED ${{ steps.props.outputs.status }}";
-          echo "NOT COMPLETED ${{ steps.props.outputs.name }}";
+          echo "NOT COMPLETED status is ${{ steps.props.outputs.status }}";
