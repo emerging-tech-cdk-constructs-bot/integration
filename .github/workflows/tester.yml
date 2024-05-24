@@ -79,7 +79,7 @@ jobs:
           OBJECT
           echo ${{ steps.graphql.outputs.checkRun.status }}
       - name: If the status is completed
-        if: ( steps.graphql.outputs.checkRun.status == "COMPLETED")
+        if: ( steps.graphql.outputs.checkRun.status == 'COMPLETED')
         run: echo "COMPLETED"
       - name: If the status is completed
         if: (steps.graphql.outputs.checkRun.status != 'COMPLETED')
