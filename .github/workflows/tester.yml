@@ -75,7 +75,6 @@ jobs:
           ${{ toJSON(steps.graphql.outputs) }}
           OBJECT
           echo '${{ steps.graphql.outputs.checkRun }}' | jq '.status';
-          echo '${{ fromJSON(steps.graphql.outputs.checkRun.status) }}'
       - name: If the check run status is completed
         if: 1 == 1
         run: echo "COMPLETED"
