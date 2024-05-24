@@ -86,7 +86,7 @@ jobs:
         if: 
           steps.props.outputs.name == 'integration' && 
           steps.props.outputs.status == 'COMPLETED' && 
-          contains(['FAILURE'], steps.props.outputs.conclusion)
+          (steps.props.outputs.conclusion == 'FAILURE')
         run: |
           echo "COMPLETED conclusion is ${{ steps.props.outputs.conclusion }}";
           exit 1;
@@ -94,7 +94,7 @@ jobs:
         if: 
           steps.props.outputs.name == 'integration' && 
           steps.props.outputs.status == 'COMPLETED' && 
-          contains(['SUCCESS'], steps.props.outputs.conclusion)
+          (steps.props.outputs.conclusion == 'SUCCESS')
         run: |
           echo "COMPLETED conclusion is ${{ steps.props.outputs.conclusion }}";
           exit 0;
