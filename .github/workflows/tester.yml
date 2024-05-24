@@ -92,7 +92,7 @@ jobs:
       - name: Set the properties
         id: props
         run: |
-          echo status=`echo '${{ steps.graphql.outputs.checkRun }}' | jq -c '.status'` >> "$GITHUB_OUTPUT";
+          echo status=`echo '${{ steps.graphql.outputs.checkRun }}' | jq -r '.status'` >> "$GITHUB_OUTPUT";
       - name: If the check run status is completed
         if: steps.props.outputs.status == 'COMPLETED'
         run: echo "COMPLETED ${{ steps.props.outputs.status }}"
