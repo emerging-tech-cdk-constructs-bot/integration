@@ -81,10 +81,15 @@ jobs:
           ${{ steps.graphql.outputs.checkRun }}
           OBJECT
 
-          echo "2.25"
+          echo "2.125"
           cat << OBJECT
-          ${{ fromJSON(steps.graphql.outputs.checkRun.status) }}
+          ${{ steps.graphql.outputs.checkRun['status'] }}
           OBJECT
+          
+          # echo "2.25"
+          # cat << OBJECT
+          # ${{ fromJSON(steps.graphql.outputs.checkRun.status) }}
+          # OBJECT
           
           # echo "2.5"
           # cat << OBJECT
