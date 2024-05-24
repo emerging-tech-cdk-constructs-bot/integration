@@ -75,42 +75,34 @@ jobs:
           cat << OBJECT
           ${{ steps.graphql.outputs }}
           OBJECT
-
           echo "2"
           cat << OBJECT
           ${{ steps.graphql.outputs.checkRun }}
           OBJECT
-          
           # echo "2.25"
           # cat << OBJECT
           # ${{ fromJSON(steps.graphql.outputs.checkRun.status) }}
           # OBJECT
-          
           echo "2.5"
           cat << OBJECT
           ${{ steps.graphql.outputs.checkRun.status }}
           OBJECT
-
           echo "3"
           cat << OBJECT
           ${{ toJSON(steps.graphql.outputs) }}
           OBJECT
-
           # echo "3.5"
           # cat << OBJECT
           # ${{ toJSON(steps.graphql.outputs).checkRun }}
           # OBJECT
-
           echo "4"
           cat << OBJECT
           ${{ toJSON(steps.graphql.outputs.checkRun) }}
           OBJECT
-
           echo "4.5"
           cat << OBJECT
           ${{ toJSON(steps.graphql.outputs.checkRun).status }}
           OBJECT
-          
       - name: If the check run status is completed
         if: ( ${{ steps.graphql.outputs.checkRun.status }} == 'COMPLETED')
         run: echo "COMPLETED"
