@@ -78,5 +78,5 @@ jobs:
           ${{ toJson(steps.graphql.outputs.checkRun) }}
           OBJECT 
       - name: If the state is completed
-        if: steps.graphql.outputs.checkRun.status == "COMPLETED" 
+        if: (steps.graphql.outputs.checkRun.status == 'COMPLETED')
         run: echo "This is the externalId...${{ toJson(steps.graphql.outputs.checkRun.externalId) }}"    
