@@ -76,10 +76,10 @@ jobs:
           OBJECT
           echo '${{ steps.graphql.outputs.checkRun }}' | jq -c '.status';
       - name: If the check run status is completed
-        if: ('COMPLETED' == 'COMPLETED')
+        if: (echo '${{ steps.graphql.outputs.checkRun }}' | jq -c '.status' == 'COMPLETED')
         run: echo "COMPLETED"
       - name: If the status is not completed
-        if: ('COMPLETED' != 'COMPLETED')
+        if: (echo '${{ steps.graphql.outputs.checkRun }}' | jq -c '.status' != 'COMPLETED')
         run: echo "NOT COMPLETED"
       - name: ExternalId
         run: echo "This is the externalId '${{ steps.graphql.outputs.checkRun.externalId }}'"    
