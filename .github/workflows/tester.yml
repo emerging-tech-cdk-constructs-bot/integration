@@ -82,7 +82,7 @@ jobs:
       - name: Debug the GitHub API GraphQL checkRun's status
         run: |
           cat << OBJECT
-          ${{ steps.graphql.outputs.checkRun.status }}
+          ${{ fromJSON(steps.graphql.outputs.checkRun.status) }}
           OBJECT
       - name: Set the properties
         id: props
