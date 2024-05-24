@@ -71,12 +71,12 @@ jobs:
               }' | jq -c '.data.repository.pullRequest | select (.state == "OPEN") | select (.reviewDecision == "APPROVED") | select (.mergeable == "MERGEABLE") | .statusCheckRollup.contexts.nodes[] | select (.databaseId == ${{ inputs.checkRunId }}) | .'` >> "$GITHUB_OUTPUT"
       - name: Debug the outputs from the GraphQL output
         run: |
-          # cat << OBJECT
-          # ${{ steps.graphql.outputs }}
-          # OBJECT
-          # cat << OBJECT
-          # ${{ toJson(steps.graphql.outputs) }}
-          # OBJECT
+          cat << OBJECT
+          ${{ steps.graphql.outputs }}
+          OBJECT
+          cat << OBJECT
+          ${{ toJSON(steps.graphql.outputs) }}
+          OBJECT
           cat << OBJECT
           ${{ steps.graphql.outputs.checkRun }}
           OBJECT
