@@ -84,6 +84,11 @@ jobs:
           cat << OBJECT
           ${{ toJSON(steps.graphql.outputs.checkRun) }}
           OBJECT
+      - name: Debug the GitHub API GraphQL checkRun's externalId
+        run: |
+          cat << OBJECT
+          ${{ steps.graphql.outputs.checkRun.externalId }}
+          OBJECT
       - name: Set the properties
         id: props
         run: |
