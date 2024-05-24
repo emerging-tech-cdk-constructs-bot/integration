@@ -76,10 +76,10 @@ jobs:
           # ${{ steps.graphql.outputs }}
           # OBJECT
 
-          # echo "2"
-          # cat << OBJECT
-          # ${{ steps.graphql.outputs.checkRun }}
-          # OBJECT
+          echo "2"
+          cat << OBJECT
+          ${{ steps.graphql.outputs.checkRun }}
+          OBJECT
           
           echo "2.5"
           cat << OBJECT
