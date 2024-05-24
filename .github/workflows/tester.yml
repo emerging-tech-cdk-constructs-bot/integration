@@ -78,6 +78,11 @@ jobs:
           echo "2"
           cat << OBJECT
           ${{ toJSON(steps.graphql.outputs) }}
+          OBJECT
+          echo "3"
+          cat << OBJECT
+          ${{ toJSON(steps.graphql.outputs).checkRun }}
+          OBJECT
       - name: If the check run status is completed
         if: ( ${{ steps.graphql.outputs.checkRun.status }} == 'COMPLETED')
         run: echo "COMPLETED"
