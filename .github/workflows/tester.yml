@@ -37,7 +37,7 @@ jobs:
       - name: Run GitHub API GraphQL
         id: graphql
         run: |
-          echo repository=`gh api graphql \
+          echo checkRun=`gh api graphql \
               --raw-field repositoryName="${{github.event.repository.name}}" \
               --raw-field repositoryOwner="${{github.event.repository.owner.login}}" \
               --field pullRequestNumber="${{inputs.pullRequestNumber}}" \
@@ -68,11 +68,15 @@ jobs:
                     }
                   }
                 }
-              }' | jq -c '.data.repository.pullRequest | select (.state == "OPEN") | select (.reviewDecision == "APPROVED") | select (.mergeable == "MERGEABLE") | .statusCheckRollup.contexts.nodes[] | select (.databaseId == ${{ inputs.checkRunId }}) | {status: .status, conclusion: .conclusion}''` >> "$GITHUB_OUTPUT"
-      - name: State of the repo
-        if: steps.graphql.outputs.repository.status == "COMPLETED" 
+              }' | jq -c '.data.repository.pullRequest | select (.state == "OPEN") | select (.reviewDecision == "APPROVED") | select (.mergeable == "MERGEABLE") | .statusCheckRollup.contexts.nodes[] | select (.databaseId == ${{ inputs.checkRunId }}) | .'` >> "$GITHUB_OUTPUT"
+      - name: Debug the outputs from the GraphQL output
         run: |
           cat << OBJECT
           ${{ toJson(steps.graphql.outputs) }}
           OBJECT
-          
+          cat << OBJECT
+          ${{ toJson(steps.graphql.outputs.checkRun) }}
+          OBJECT 
+      - name: If the state is completed
+        if: steps.graphql.outputs.checkRun.status == "COMPLETED" 
+        run: echo "This is the externalId...${{ toJson(steps.graphql.outputs.checkRun.externalId) }}"    
