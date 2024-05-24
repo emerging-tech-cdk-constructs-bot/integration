@@ -76,7 +76,7 @@ jobs:
           ${{ steps.graphql.outputs.checkRun }}
           OBJECT
           echo "5"
-          echo ${{ steps.graphql.outputs.checkRun }}
+          echo '${{ steps.graphql.outputs.checkRun }}'
       - name: If the check run status is completed
         if: ( ${{ steps.graphql.outputs.checkRun.status }} == 'COMPLETED')
         run: echo "COMPLETED"
