@@ -72,13 +72,17 @@ jobs:
       - name: Debug the outputs from the GraphQL output
         run: |
           cat << OBJECT
+          ${{ steps.graphql.outputs }}
+          OBJECT
+          cat << OBJECT
           ${{ toJson(steps.graphql.outputs) }}
+          OBJECT
+          cat << OBJECT
+          ${{ steps.graphql.outputs.checkRun }}
           OBJECT
           cat << OBJECT
           ${{ toJson(steps.graphql.outputs.checkRun) }}
           OBJECT
-          echo ${{ toJson(steps.graphql.outputs.checkRun).status }}
-          echo ${{ steps.graphql.outputs.checkRun.status }}
       - name: If the status is completed
         if: ( steps.graphql.outputs.checkRun.status == 'COMPLETED')
         run: echo "COMPLETED"
