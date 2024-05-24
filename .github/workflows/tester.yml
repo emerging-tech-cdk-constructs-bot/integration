@@ -74,30 +74,21 @@ jobs:
           cat << OBJECT
           ${{ toJSON(steps.graphql.outputs) }}
           OBJECT
-      - name: Debug the GitHub API GraphQL checkRun
-        run: |
-          cat << OBJECT
-          ${{ steps.graphql.outputs.checkRun }}
-          OBJECT
-      - name: Debug the GitHub API GraphQL checkRun
-        run: |
-          cat << OBJECT
-          ${{ toJSON(steps.graphql.outputs.checkRun) }}
-          OBJECT
-      - name: Debug the GitHub API GraphQL checkRun's externalId
-        run: |
-          cat << OBJECT
-          ${{ toJSON(steps.graphql.outputs.checkRun.externalId) }}
-          OBJECT
       - name: Set the properties
         id: props
         run: |
           echo status=`echo '${{ steps.graphql.outputs.checkRun }}' | jq -r '.status'` >> "$GITHUB_OUTPUT";
+          echo externalId=`echo '${{ steps.graphql.outputs.checkRun }}' | jq -r '.externalId'` >> "$GITHUB_OUTPUT";
+          echo conclusion=`echo '${{ steps.graphql.outputs.checkRun }}' | jq -r '.conclusion'` >> "$GITHUB_OUTPUT";
+          echo isRequired=`echo '${{ steps.graphql.outputs.checkRun }}' | jq -r '.isRequired'` >> "$GITHUB_OUTPUT";
+          echo name=`echo '${{ steps.graphql.outputs.checkRun }}' | jq -r '.name'` >> "$GITHUB_OUTPUT";
       - name: If the check run status is completed
         if: steps.props.outputs.status == 'COMPLETED'
-        run: echo "COMPLETED ${{ steps.props.outputs.status }}"
+        run: |
+          echo "COMPLETED ${{ steps.props.outputs.status }}";
+          echo "COMPLETED ${{ steps.props.outputs.name }}";
       - name: If the status is not completed
         if: steps.props.outputs.status != 'COMPLETED'
-        run: echo "NOT COMPLETED ${{ steps.props.outputs.status }}"
-      # - name: ExternalId
-      #   run: echo "This is the externalId '${{ steps.graphql.outputs.checkRun.externalId }}'"    
+        run: |
+          echo "NOT COMPLETED ${{ steps.props.outputs.status }}";
+          echo "NOT COMPLETED ${{ steps.props.outputs.name }}";
