@@ -82,11 +82,25 @@ jobs:
           echo conclusion=`echo '${{ steps.graphql.outputs.checkRun }}' | jq -r '.conclusion'` >> "$GITHUB_OUTPUT";
           echo isRequired=`echo '${{ steps.graphql.outputs.checkRun }}' | jq -r '.isRequired'` >> "$GITHUB_OUTPUT";
           echo name=`echo '${{ steps.graphql.outputs.checkRun }}' | jq -r '.name'` >> "$GITHUB_OUTPUT";
-      - name: If the check run status is completed
-        if: steps.props.outputs.name == 'integration' && steps.props.outputs.status == 'COMPLETED'
+      - name: If the check run status is completed and failure
+        if: 
+          steps.props.outputs.name == 'integration' && 
+          steps.props.outputs.status == 'COMPLETED' && 
+          contains(['FAILURE'], steps.props.outputs.conclusion)
         run: |
           echo "COMPLETED conclusion is ${{ steps.props.outputs.conclusion }}";
-      - name: If the status is not completed
-        if: steps.props.outputs.name == 'integration' && steps.props.outputs.status != 'COMPLETED'
+          exit 1;
+      - name: If the check run status is completed and success
+        if: 
+          steps.props.outputs.name == 'integration' && 
+          steps.props.outputs.status == 'COMPLETED' && 
+          contains(['SUCCESS'], steps.props.outputs.conclusion)
         run: |
-          echo "NOT COMPLETED status is ${{ steps.props.outputs.status }}";
+          echo "COMPLETED conclusion is ${{ steps.props.outputs.conclusion }}";
+          exit 0;
+      - name: If the status is not completed
+        if: 
+          steps.props.outputs.name == 'integration' &&
+          steps.props.outputs.status != 'COMPLETED'
+        run: |
+          echo "NOT COMPLETED yet, status is ${{ steps.props.outputs.status }}";
