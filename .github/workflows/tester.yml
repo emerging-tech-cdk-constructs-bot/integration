@@ -71,12 +71,8 @@ jobs:
               }' | jq -c '.data.repository.pullRequest | select (.state == "OPEN") | select (.reviewDecision == "APPROVED") | select (.mergeable == "MERGEABLE") | .statusCheckRollup.contexts.nodes[] | select (.databaseId == ${{ inputs.checkRunId }}) | .'` >> "$GITHUB_OUTPUT"
       - name: Debug the outputs from the GraphQL output
         run: |
-          echo "4"
-          cat << OBJECT
-          ${{ steps.graphql.outputs.checkRun }}
-          OBJECT
-          echo "5"
-          echo '${{ steps.graphql.outputs.checkRun }}' | jq '.'
+          echo '${{ steps.graphql.outputs.checkRun }}' | jq '.status';
+          echo '${{ steps.graphql.outputs.checkRun.status }}'
       - name: If the check run status is completed
         if: ( ${{ steps.graphql.outputs.checkRun.status }} == 'COMPLETED')
         run: echo "COMPLETED"
