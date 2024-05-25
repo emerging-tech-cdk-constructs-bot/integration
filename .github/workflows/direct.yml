@@ -99,6 +99,10 @@ jobs:
             'samples/python-samples/requirements.txt'
             'samples/python-samples/requirements-local.txt'
             'samples/python-samples/requirements-dev.txt'
+      - run: |-
+          pip install -r requirements-local.txt
+          pip install -r requirements-dev.txt
+          pip freeze
       - uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: ${{ secrets.AWS_ROLE_ARN_TO_ASSUME }}
@@ -108,9 +112,5 @@ jobs:
       - run: 'cdk synthesize'
       - run: 'cdk diff'
       - run: 'cdk deploy --require-approval never'
-      - run: |-
-          pip install -r requirements-local.txt
-          pip install -r requirements-dev.txt
-          pip freeze
       - run: pytest
 
