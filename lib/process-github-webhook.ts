@@ -132,6 +132,44 @@ export async function processGithubWebhook(event: APIGatewayEvent) {
                         break;
                 }
                 break;
+            case "workflow_run":
+                switch (githubAction) {
+                    case "requested":
+                        break;            
+                    case "in_progress":
+                        break;
+                    case "completed":
+                        //TODO: Get the logs and derive the environmental variables from the inputs
+                        console.warn(`WORKFLOW_RUN:${JSON.stringify(githubBody)}`);
+                        // const workflowLogs = await octokit.request('GET /repos/{owner}/{repo}/actions/runs/{run_id}/logs', {
+                        //     owner: githubBody.repository.owner.login,
+                        //     repo: githubBody.repository.name,
+                        //     run_id: githubBody.workflow_run.id,
+                        //     headers: {
+                        //       'X-GitHub-Api-Version': '2022-11-28'
+                        //     }
+                        // });
+                        // console.warn(`WORKFLOW_RUN_LOGS:${JSON.stringify(workflowLogs)}`);
+                        // console.error(`Get the logs here "${githubBody.logs_url}"`);
+                        // const databaseId = Number(25404064616); //TODO: replace with parse from logs...
+                        // const completeCheckRun = await concludeGithubCheckRun(
+                        //     octokit, 
+                        //     githubBody.repository.owner.login, 
+                        //     githubBody.repository.name, 
+                        //     databaseId,
+                        //     githubBody.conclusion,
+                        //     `See workflow ${githubBody.workflow_run.id}`,
+                        // );
+                        
+                        //TODO: conclude with the same conclusion
+                        console.warn(`Conclude with "${githubBody.conclusion}"`);
+                        // /repos/emerging-tech-cdk-constructs-bot/integration/actions/runs/9233271513/logs
+                        break;
+                    default:
+                        console.warn(`Unhandled action`);
+                        break;
+                }
+                break;
             case "check_run":
                 if (githubBody.check_run.name === "integration" && githubBody.check_run.app.id === appId) {
                     processCheckRun = true;
@@ -140,15 +178,6 @@ export async function processGithubWebhook(event: APIGatewayEvent) {
                 }
                 switch (githubAction) {
                     case "created":
-                        // if (processCheckRun) {
-                        //     const nextCheckStatus = await updateGithubCheckRun(
-                        //         octokit, 
-                        //         githubBody.repository.owner.login, 
-                        //         githubBody.repository.name, 
-                        //         githubBody.check_run.id,
-                        //         "in_progress",
-                        //     );
-                        // }
                         break;            
                     case "requested_action":
                         // TODO: Paginate, retry, etc.

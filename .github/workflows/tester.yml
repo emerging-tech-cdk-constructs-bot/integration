@@ -1,23 +1,96 @@
 on: 
   workflow_dispatch:
     inputs:
+      pullRequestNumber:
+        type: string
+        required: true
+        default: '0'
       externalId:
         type: string
         required: true
-        default: ''
+        default: '0'
 jobs:
-  manual:
+  tester:
     runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+      pullRequestNumber: ${{ inputs.pullRequestNumber }}
+      externalId: ${{ inputs.externalId }}
     permissions:
       id-token: write
       contents: read
       checks: write
+      pull-requests: read
     steps:
-      - name: Echo the event
-        run: echo "${{ github.event }}"
-      - name: Inputs
-        run: echo "${{ inputs }}"
-      - name: GitHub CLI version
-        run: gh --version
-      - name: Only run if an admin
-        run: echo "run the GraphQL for the requested check..."
+      - name: Get details of the pull request
+        id: graphql
+        run: |
+          echo repository=`gh api graphql \
+              --raw-field repositoryName="${{github.event.repository.name}}" \
+              --raw-field repositoryOwner="${{github.event.repository.owner.login}}" \
+              --field pullRequestNumber="${{inputs.pullRequestNumber}}" \
+              --field query='query($repositoryName: String!, $repositoryOwner: String!, $pullRequestNumber: Int!){
+                repository(followRenames: true, name: $repositoryName, owner: $repositoryOwner) {
+                  collaborators(first: 100) {
+                      edges {
+                          permission
+                          node {
+                              login
+                          }
+                      }
+                  }
+                  pullRequest(number: $pullRequestNumber) {
+                    state
+                    reviewDecision
+                    mergeable
+                    isDraft
+                    labels(first: 100) {
+                      nodes {
+                        name
+                      }
+                    }
+                    statusCheckRollup {
+                      contexts(first: 100) {
+                        checkRunCount
+                        nodes {
+                          ... on CheckRun {
+                            id
+                            isRequired(pullRequestNumber: $pullRequestNumber)
+                            name
+                            status
+                            databaseId
+                            externalId
+                            conclusion
+                            summary
+                            text
+                            title
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }' | jq -c '.data.repository'` >> "$GITHUB_OUTPUT"
+      - name: Store the Administrators
+        id: collaborators
+        run: |
+          echo admins=`echo '${{ steps.graphql.outputs.repository }}' | jq -c '.collaborators.edges[] | select(.permission == "ADMIN") | [.node.login]'` >> "$GITHUB_OUTPUT"
+      - name: Get the check run if the PR is open, approved, mergeable, not in draft, and labeled with integration
+        id: pullrequest
+        run: |
+          echo checkrun=`echo '${{ steps.graphql.outputs.repository }}' | jq -c '.pullRequest | select (.state == "OPEN") | select (.reviewDecision == "APPROVED") | select (.mergeable == "MERGEABLE") | select (.labels.nodes[].name == "integration") | select (.isDraft == false) | .statusCheckRollup.contexts.nodes[] | select (.externalId == "${{ inputs.externalId }}") | .'` >> "$GITHUB_OUTPUT"          
+      - name: Get the properties for the check run
+        id: props
+        run: |
+          echo status=`echo '${{ steps.pullrequest.outputs.checkrun }}' | jq -r '.status'` >> "$GITHUB_OUTPUT";
+          echo databaseId=`echo '${{ steps.pullrequest.outputs.checkrun }}' | jq -r '.databaseId'` >> "$GITHUB_OUTPUT";
+          echo externalId=`echo '${{ steps.pullrequest.outputs.checkrun }}' | jq -r '.externalId'` >> "$GITHUB_OUTPUT";
+          echo name=`echo '${{ steps.pullrequest.outputs.checkrun }}' | jq -r '.name'` >> "$GITHUB_OUTPUT";
+      - name: Run if the integration check run is incomplete and the actor is an admin
+        if:
+          contains(steps.collaborators.outputs.admins, github.actor) &&
+          steps.props.outputs.name == 'integration' &&
+          steps.props.outputs.status != 'COMPLETED'
+        run: |-
+          echo "Yes, ${{ github.actor }} is part of ${{ steps.collaborators.outputs.admins }}"
+          echo "Do more here"
