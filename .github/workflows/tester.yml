@@ -8,7 +8,7 @@ on:
       externalId:
         type: string
         required: true
-        default: '1716601244789'
+        default: '1716608154679'
 jobs:
   tester:
     runs-on: ubuntu-latest
