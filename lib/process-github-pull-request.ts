@@ -79,23 +79,18 @@ export const processGithubPullRequest = async (octokit: Octokit, body: any, exte
                             //NOTE: The identifiers will the conclusion at completion.
                             actions: [
                                 {
-                                    label: 'fail',
-                                    description: 'manually fail the check',
-                                    identifier: 'failure',
-                                },
-                                {
-                                    label: 'pass',
-                                    description: 'manually pass the check',
-                                    identifier: 'success',
-                                },
-                                {
                                     label: 'run',
                                     description: 'run the check',
                                     identifier: externalId,
-                                },                                
+                                },
+                                {
+                                    label: 'fail',
+                                    description: 'manually fail',
+                                    identifier: 'failure',
+                                },
                                 {
                                     label: 'skip',
-                                    description: 'skip the check',
+                                    description: 'manually skip',
                                     identifier: 'skipped',
                                 },
                             ],
