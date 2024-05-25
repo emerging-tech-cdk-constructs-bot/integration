@@ -73,7 +73,7 @@ jobs:
                     }
                   }
                 }
-              }' | jq -c '.data.repository.pullRequest | select (.state == "OPEN") | select (.reviewDecision == "APPROVED") | select (.mergeable == "MERGEABLE") | .statusCheckRollup.contexts.nodes[] | select (.externalId == ${{ inputs.externalId }}) | .'` >> "$GITHUB_OUTPUT"
+              }' | jq -c '.data.repository.pullRequest | select (.state == "OPEN") | select (.reviewDecision == "APPROVED") | select (.mergeable == "MERGEABLE") | .statusCheckRollup.contexts.nodes[] | select (.externalId == "${{ inputs.externalId }}") | .'` >> "$GITHUB_OUTPUT"
       - name: Debug the GitHub API GraphQL output
         run: |
           cat << OBJECT
