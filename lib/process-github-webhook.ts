@@ -19,6 +19,8 @@ export async function processGithubWebhook(event: APIGatewayEvent) {
     const githubDelivery = event.headers[X_GITHUB_DELIVERY];
     if (githubDelivery === undefined || githubDelivery === null || githubDelivery === "") {
         throw new Error(`Missing or Invalid "${X_GITHUB_DELIVERY}" in headers`);
+    } else {
+        console.info(`${X_GITHUB_DELIVERY}:\n${githubDelivery}`);
     }
     const githubEvent = event.headers[X_GITHUB_EVENT];
     if (githubEvent === undefined || githubEvent === null || githubEvent === "") {
