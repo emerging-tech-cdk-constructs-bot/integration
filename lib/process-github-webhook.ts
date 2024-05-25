@@ -211,7 +211,10 @@ export async function processGithubWebhook(event: APIGatewayEvent) {
 
         if (processPullRequest) {
             console.debug(`processing pull request`);
-            const pullRequest = await processGithubPullRequest(octokit, githubBody, githubDelivery);
+            // Unique delivery and requestid are GUID and 36 long and externalId is only allowing 20, need to compensate...
+            const externalIdOnlyAllowsTwenty = new Date().now().toString() // is milliseconds since epoch 13 characters...
+            // TODO: use the `githubDelivery` when expanded to longer than 20
+            const pullRequest = await processGithubPullRequest(octokit, githubBody, externalIdOnlyAllowsTwenty);
         } else {
             console.debug(`not going to process pull request due to event and action`);
         }
