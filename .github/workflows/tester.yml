@@ -4,11 +4,11 @@ on:
       pullRequestNumber:
         type: string
         required: true
-        default: '2'
+        default: '0'
       externalId:
         type: string
         required: true
-        default: '1716619302478'
+        default: '0'
 jobs:
   tester:
     runs-on: ubuntu-latest
@@ -86,7 +86,7 @@ jobs:
           echo databaseId=`echo '${{ steps.pullrequest.outputs.checkrun }}' | jq -r '.databaseId'` >> "$GITHUB_OUTPUT";
           echo externalId=`echo '${{ steps.pullrequest.outputs.checkrun }}' | jq -r '.externalId'` >> "$GITHUB_OUTPUT";
           echo name=`echo '${{ steps.pullrequest.outputs.checkrun }}' | jq -r '.name'` >> "$GITHUB_OUTPUT";
-      - name: Status
+      - name: Information
         run: |-
           echo "Is ${{ github.actor }} part of ${{ steps.collaborators.outputs.admins }}"
           echo "Name of ${{ steps.props.outputs.name }}"
