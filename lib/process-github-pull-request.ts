@@ -61,7 +61,7 @@ export const processGithubPullRequest = async (octokit: Octokit, body: any, exte
                     ))) {
                         //TODO: Add a message to an AWS SQS FIFO Queue
                         // Use AWS Javascript SDK to send an AWS SQS SendMessageCommand
-                        console.log(`Sending message to AWS SQS FIFO Queue...`);
+                        console.log(`TODO Sending message to AWS SQS FIFO Queue...`);
 
                         // Send an SQS Message
                         //const sqsHelper = SqSHelper.getInstance();
@@ -73,19 +73,19 @@ export const processGithubPullRequest = async (octokit: Octokit, body: any, exte
                             repo: body.pull_request.base.repo.name,
                             name: 'integration',
                             head_sha: body.pull_request.head.sha,
-                            status: 'queued',
+                            status: 'queued', // can only be 'queued', 'in_progress', or 'pending'
                             external_id: externalId,
                             started_at: new Date().toISOString(),
                             //NOTE: The identifiers will the conclusion at completion.
                             actions: [
                                 {
                                     label: 'fail',
-                                    description: 'fail the check',
+                                    description: 'manually fail the check',
                                     identifier: 'failure',
                                 },
                                 {
                                     label: 'pass',
-                                    description: 'pass the check',
+                                    description: 'manually pass the check',
                                     identifier: 'success',
                                 },
                                 {
@@ -109,6 +109,8 @@ export const processGithubPullRequest = async (octokit: Octokit, body: any, exte
                             }
                         });
                         console.debug(`octokit.request.check-runs:\n${JSON.stringify(checkRuns, null, 2)}`);
+                        console.info(`octokit.request.check-runs.id:\n${checkRuns.id}`);
+                        //TODO: update the check run with the identifier to the check run's id
                     } else {
                         console.debug(`No integrators "APPROVED"`);
                     }
