@@ -104,7 +104,7 @@ export const processGithubPullRequest = async (octokit: Octokit, body: any, exte
                             }
                         });
                         console.debug(`octokit.request.check-runs:\n${JSON.stringify(checkRuns, null, 2)}`);
-                        console.info(`octokit.request.check-runs.id:\n${checkRuns.id}`);
+                        console.info(`octokit.request.check-runs.id:\n${checkRuns.data.id}`);
                         //TODO: update the check run with the identifier to the check run's id
                     } else {
                         console.debug(`No integrators "APPROVED"`);
