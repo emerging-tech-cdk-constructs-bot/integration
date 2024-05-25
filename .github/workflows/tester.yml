@@ -82,17 +82,26 @@ jobs:
       - name: Set the properties
         id: props
         run: |
-          echo status=`echo '${{ steps.pullrequest.outputs.checkRun }}' | jq -r '.status'` >> "$GITHUB_OUTPUT";
-          echo databaseId=`echo '${{ steps.pullrequest.outputs.checkRun }}' | jq -r '.databaseId'` >> "$GITHUB_OUTPUT";
-          echo externalId=`echo '${{ steps.pullrequest.outputs.checkRun }}' | jq -r '.externalId'` >> "$GITHUB_OUTPUT";
-          echo conclusion=`echo '${{ steps.pullrequest.outputs.checkRun }}' | jq -r '.conclusion'` >> "$GITHUB_OUTPUT";
-          echo isRequired=`echo '${{ steps.pullrequest.outputs.checkRun }}' | jq -r '.isRequired'` >> "$GITHUB_OUTPUT";
-          echo name=`echo '${{ steps.pullrequest.outputs.checkRun }}' | jq -r '.name'` >> "$GITHUB_OUTPUT";
+          echo status=`echo '${{ steps.pullrequest.outputs.checkrun }}' | jq -r '.status'` >> "$GITHUB_OUTPUT";
+          echo databaseId=`echo '${{ steps.pullrequest.outputs.checkrun }}' | jq -r '.databaseId'` >> "$GITHUB_OUTPUT";
+          echo externalId=`echo '${{ steps.pullrequest.outputs.checkrun }}' | jq -r '.externalId'` >> "$GITHUB_OUTPUT";
+          echo conclusion=`echo '${{ steps.pullrequest.outputs.checkrun }}' | jq -r '.conclusion'` >> "$GITHUB_OUTPUT";
+          echo isRequired=`echo '${{ steps.pullrequest.outputs.checkrun }}' | jq -r '.isRequired'` >> "$GITHUB_OUTPUT";
+          echo name=`echo '${{ steps.pullrequest.outputs.checkrun }}' | jq -r '.name'` >> "$GITHUB_OUTPUT";
       - name: Debug outputs
         run: |
           echo ${{ steps.collaborators.outputs.admins }};
           echo ${{ steps.pullrequest.outputs.checkrun }};
+          echo ${{ steps.props.outputs.name }};
           echo ${{ steps.props.outputs.status }};
+      - name: Is the actor an admin
+        if:
+          ${{ contains(steps.collaborators.outputs.admins, github.actor) }}
+        run: echo "Yes, ${{ github.actor }} is part of ${{ steps.collaborators.outputs.admins }}"
+      - name: Is the actor is not allowed to do this
+        if:
+          ${{ ! contains(steps.collaborators.outputs.admins, github.actor) }}
+        run: echo "No, ${{ github.actor }} is not in ${{ steps.collaborators.outputs.admins }}"
       - name: If checkRun's status is not completed
         if: 
           steps.props.outputs.name == 'integration' &&
