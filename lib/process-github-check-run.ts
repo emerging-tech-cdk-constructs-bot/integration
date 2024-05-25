@@ -19,7 +19,7 @@ export const updateGithubCheckRun = async (octokit: Octokit, owner: string, repo
 
 export const concludeGithubCheckRun = async (octokit: Octokit, owner: string, repo: string, checkRunId: Number, conclusion: string, text?: string) => {
     // skip stale, because only GitHub can ...
-    if (["action_required", "cancelled", "failure", "neutral", "success", "skipped", "time_out"].indexOf(conclusion) > -1) {
+    if (["action_required", "cancelled", "failure", "neutral", "success", "skipped", "timed_out"].indexOf(conclusion) > -1) {
         const checkRuns = await octokit.request('PATCH /repos/{owner}/{repo}/check-runs/{check_run_id}', {
             owner: owner,
             repo: repo,
