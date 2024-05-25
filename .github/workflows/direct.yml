@@ -12,7 +12,7 @@ on:
       branchToCheckout:
         type: string
         required: true
-        default: 'main'
+        default: 'feat/pytest'
 jobs:
   # build:
   #   runs-on: ubuntu-latest
@@ -79,8 +79,8 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '20.x'
-          cache: 'npm'
-          cache-dependency-path: 'package-lock.json'
+          # cache: 'npm'
+          # cache-dependency-path: 'package-lock.json'
       # - name: Download package
       #   uses: actions/download-artifact@v4
       #   with:
