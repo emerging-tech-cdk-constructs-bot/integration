@@ -74,13 +74,13 @@ jobs:
         with:
           repository: 'aws-samples/generative-ai-cdk-constructs-samples'
           ref: ${{ inputs.branchToCheckout }}
+      - run: |-
+          cd "samples/python-samples"
       - uses: actions/setup-node@v4
         with:
           node-version: '20.x'
           cache: 'npm'
           cache-dependency-path: 'package-lock.json'
-      - run: |-
-          cd "samples/python-samples"
       - name: Download package
         uses: actions/download-artifact@v4
         with:
