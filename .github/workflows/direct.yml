@@ -1,0 +1,37 @@
+on: 
+  workflow_dispatch:
+    inputs:
+      pullRequestNumber:
+        type: string
+        required: true
+        default: '0'
+      externalId:
+        type: string
+        required: true
+        default: '0'
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+      pullRequestNumber: ${{ inputs.pullRequestNumber }}
+      externalId: ${{ inputs.externalId }}
+    permissions:
+      id-token: write
+      contents: read
+      checks: write
+      pull-requests: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          repository: 'https://github.com/awslabs/generative-ai-cdk-constructs'
+      - name: Get the PR
+        if: fromJSON(inputs.pullRequestNumber) > 0
+        run: |-
+          echo "yes, there is a PR to find"
+          gh pr checkout ${{ inputs.pullRequestNumber }}
+      - name: Where are we
+        run: |-
+          git merge main
+          git branch
+          git diff main..HEAD
