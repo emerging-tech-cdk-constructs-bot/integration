@@ -132,6 +132,29 @@ export async function processGithubWebhook(event: APIGatewayEvent) {
                         break;
                 }
                 break;
+            case "workflow_run":
+                switch (githubAction) {
+                    case "requested":
+                        break;            
+                    case "in_progress":
+                        break;
+                    case "completed":
+                        //TODO: If this is the "tester.yml" then get the conclusion and set the end status for the check to match...
+                        console.warn(`WORKFLOW_RUN:${JSON.stringify(githubBody)}`);
+                        // const completeCheckRun = await concludeGithubCheckRun(
+                        //     octokit, 
+                        //     githubBody.repository.owner.login, 
+                        //     githubBody.repository.name, 
+                        //     githubBody.check_run.id,
+                        //     githubBody[githubAction].identifier,
+                        //     `${githubBody.sender.login} processed the request`,
+                        // );
+                        break;
+                    default:
+                        console.warn(`Unhandled action`);
+                        break;
+                }
+                break;
             case "check_run":
                 if (githubBody.check_run.name === "integration" && githubBody.check_run.app.id === appId) {
                     processCheckRun = true;
