@@ -70,11 +70,11 @@ jobs:
                   }
                 }
               }' | jq -c '.data.repository'  #  | jq -c '.data.repository.pullRequest | select (.state == "OPEN") | select (.reviewDecision == "APPROVED") | select (.mergeable == "MERGEABLE") | select (.labels.nodes[].name == "integration") | select (.isDraft == false) | .statusCheckRollup.contexts.nodes[] | select (.externalId == "${{ inputs.externalId }}") | .'` >> "$GITHUB_OUTPUT"
-      - name: Get the admins
+      - name: The admins
         id: collaborators
         run: |
+          echo "actor ${{ github.actor }} and triggering actor ${{ github.triggering_actor }}"
           echo admins=`echo '${{ steps.graphql.outputs.repository }}' | jq -c '.collaborators.edges[] | select(.permission == "ADMIN") | [.node.login]'` >> "$GITHUB_OUTPUT"
-          echo "actor ${{ github.actor }} and triggering actor ${{ github.triggering_actor }}
       - name: Get the check run
         id: pullrequest
         run: |
