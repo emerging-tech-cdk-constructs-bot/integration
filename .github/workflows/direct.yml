@@ -24,7 +24,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          repository: 'https://github.com/awslabs/generative-ai-cdk-constructs'
+          repository: 'awslabs/generative-ai-cdk-constructs'
       - name: Get the PR
         if: fromJSON(inputs.pullRequestNumber) > 0
         run: |-
