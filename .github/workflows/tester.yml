@@ -12,7 +12,7 @@ on:
       externalId:
         type: string
         required: true
-        default: '0'
+        default: '1716601244789'
 
 jobs:
   tester:
@@ -73,7 +73,7 @@ jobs:
                     }
                   }
                 }
-              }' | jq -c '.data.repository.pullRequest | select (.state == "OPEN") | select (.reviewDecision == "APPROVED") | select (.mergeable == "MERGEABLE") | .statusCheckRollup.contexts.nodes[] | select (.databaseId == ${{ inputs.checkRunId }}) | .'` >> "$GITHUB_OUTPUT"
+              }' | jq -c '.data.repository.pullRequest | select (.state == "OPEN") | select (.reviewDecision == "APPROVED") | select (.mergeable == "MERGEABLE") | .statusCheckRollup.contexts.nodes[] | select (.externalId == ${{ inputs.externalId }}) | .'` >> "$GITHUB_OUTPUT"
       - name: Debug the GitHub API GraphQL output
         run: |
           cat << OBJECT
@@ -83,6 +83,7 @@ jobs:
         id: props
         run: |
           echo status=`echo '${{ steps.graphql.outputs.checkRun }}' | jq -r '.status'` >> "$GITHUB_OUTPUT";
+          echo databaseId=`echo '${{ steps.graphql.outputs.checkRun }}' | jq -r '.databaseId'` >> "$GITHUB_OUTPUT";
           echo externalId=`echo '${{ steps.graphql.outputs.checkRun }}' | jq -r '.externalId'` >> "$GITHUB_OUTPUT";
           echo conclusion=`echo '${{ steps.graphql.outputs.checkRun }}' | jq -r '.conclusion'` >> "$GITHUB_OUTPUT";
           echo isRequired=`echo '${{ steps.graphql.outputs.checkRun }}' | jq -r '.isRequired'` >> "$GITHUB_OUTPUT";
