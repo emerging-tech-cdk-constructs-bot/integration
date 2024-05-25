@@ -24,8 +24,10 @@ jobs:
       - name: Checkout actions-oidc-debugger
         uses: actions/checkout@v4
         with:
-          repository: 'aws-samples/generative-ai-cdk-constructs-samples'
-          ref: "${{ inputs.branchToCheckout }}"
+          # repository: 'aws-samples/generative-ai-cdk-constructs-samples'
+          # ref: "${{ inputs.branchToCheckout }}"
+          repository: github/actions-oidc-debugger
+          ref: main
           path: ./.github/actions/actions-oidc-debugger
       - name: Debug OIDC Claims
         uses: ./.github/actions/actions-oidc-debugger
