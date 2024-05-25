@@ -28,8 +28,11 @@ jobs:
       - name: Get the PR
         if: fromJSON(inputs.pullRequestNumber) > 0
         run: |-
-          echo "yes, there is a PR to find"
-          gh pr checkout ${{ inputs.pullRequestNumber }}
+          pwd;
+          ls -l;
+          echo "yes, there is a PR to find ${{ inputs.pullRequestNumber }}";
+          gh pr checkout ${{ inputs.pullRequestNumber }};
+          git status;
       - name: Where are we
         run: |-
           git merge main
