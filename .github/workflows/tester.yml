@@ -8,7 +8,12 @@ on:
       checkRunId:
         type: string
         required: true
-        default: '25237483792'
+        default: '25402528485'
+      externalId:
+        type: string
+        required: true
+        default: '0'
+
 jobs:
   tester:
     runs-on: ubuntu-latest
