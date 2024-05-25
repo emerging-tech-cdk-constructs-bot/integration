@@ -14,6 +14,23 @@ on:
         required: true
         default: 'feat/pytest'
 jobs:
+  # oidc_debug_test:
+  #   permissions:
+  #     contents: read
+  #     id-token: write
+  #   runs-on: ubuntu-latest
+  #   name: A test of the oidc debugger
+  #   steps:
+  #     - name: Checkout actions-oidc-debugger
+  #       uses: actions/checkout@v4
+  #       with:
+  #         repository: github/actions-oidc-debugger
+  #         ref: main
+  #         path: ./.github/actions/actions-oidc-debugger
+  #     - name: Debug OIDC Claims
+  #       uses: ./.github/actions/actions-oidc-debugger
+  #       with:
+  #         audience: '${{ github.server_url }}/${{ github.repository_owner }}'
   build:
     runs-on: ubuntu-latest
     env:
@@ -111,6 +128,6 @@ jobs:
           mask-aws-account-id: true
       - run: 'cdk synthesize'
       - run: 'cdk diff'
-      - run: 'cdk deploy --require-approval never'
+      - run: 'cdk deploy --all --require-approval never'
       - run: pytest
 
