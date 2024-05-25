@@ -4,11 +4,11 @@ on:
       pullRequestNumber:
         type: string
         required: true
-        default: '2'
+        default: '0'
       externalId:
         type: string
         required: true
-        default: '1716608154679'
+        default: '0'
 jobs:
   tester:
     runs-on: ubuntu-latest
@@ -89,4 +89,5 @@ jobs:
           contains(steps.collaborators.outputs.admins, github.actor) &&
           steps.props.outputs.name == 'integration' &&
           steps.props.outputs.status != 'COMPLETED'
-        run: echo "Yes, ${{ github.actor }} is part of ${{ steps.collaborators.outputs.admins }}"
+        run: |-
+          echo "Yes, ${{ github.actor }} is part of ${{ steps.collaborators.outputs.admins }}"
