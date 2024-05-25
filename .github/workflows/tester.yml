@@ -86,6 +86,11 @@ jobs:
           echo databaseId=`echo '${{ steps.pullrequest.outputs.checkrun }}' | jq -r '.databaseId'` >> "$GITHUB_OUTPUT";
           echo externalId=`echo '${{ steps.pullrequest.outputs.checkrun }}' | jq -r '.externalId'` >> "$GITHUB_OUTPUT";
           echo name=`echo '${{ steps.pullrequest.outputs.checkrun }}' | jq -r '.name'` >> "$GITHUB_OUTPUT";
+      - name: Information
+        run: |-
+          echo "Is ${{ github.actor }} part of ${{ steps.collaborators.outputs.admins }}"
+          echo "Name of ${{ steps.props.outputs.name }}"
+          echo "Status of ${{ steps.props.outputs.status }}"
       - name: Run if the integration check run is incomplete and the actor is an admin
         if:
           contains(steps.collaborators.outputs.admins, github.actor) &&
