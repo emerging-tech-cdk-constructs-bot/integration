@@ -141,25 +141,25 @@ export async function processGithubWebhook(event: APIGatewayEvent) {
                     case "completed":
                         //TODO: Get the logs and derive the environmental variables from the inputs
                         console.warn(`WORKFLOW_RUN:${JSON.stringify(githubBody)}`);
-                        const workflowLogs = await octokit.request('GET /repos/{owner}/{repo}/actions/runs/{run_id}/logs', {
-                            owner: githubBody.repository.owner.login,
-                            repo: githubBody.repository.name,
-                            run_id: githubBody.workflow_run.id,
-                            headers: {
-                              'X-GitHub-Api-Version': '2022-11-28'
-                            }
-                        });
-                        console.warn(`WORKFLOW_RUN_LOGS:${JSON.stringify(workflowLogs)}`);
-                        console.error(`Get the logs here "${githubBody.logs_url}"`);
-                        const databaseId = Number(25404064616); //TODO: replace with parse from logs...
-                        const completeCheckRun = await concludeGithubCheckRun(
-                            octokit, 
-                            githubBody.repository.owner.login, 
-                            githubBody.repository.name, 
-                            databaseId,
-                            githubBody.conclusion,
-                            `See workflow ${githubBody.workflow_run.id}`,
-                        );
+                        // const workflowLogs = await octokit.request('GET /repos/{owner}/{repo}/actions/runs/{run_id}/logs', {
+                        //     owner: githubBody.repository.owner.login,
+                        //     repo: githubBody.repository.name,
+                        //     run_id: githubBody.workflow_run.id,
+                        //     headers: {
+                        //       'X-GitHub-Api-Version': '2022-11-28'
+                        //     }
+                        // });
+                        // console.warn(`WORKFLOW_RUN_LOGS:${JSON.stringify(workflowLogs)}`);
+                        // console.error(`Get the logs here "${githubBody.logs_url}"`);
+                        // const databaseId = Number(25404064616); //TODO: replace with parse from logs...
+                        // const completeCheckRun = await concludeGithubCheckRun(
+                        //     octokit, 
+                        //     githubBody.repository.owner.login, 
+                        //     githubBody.repository.name, 
+                        //     databaseId,
+                        //     githubBody.conclusion,
+                        //     `See workflow ${githubBody.workflow_run.id}`,
+                        // );
                         
                         //TODO: conclude with the same conclusion
                         console.warn(`Conclude with "${githubBody.conclusion}"`);
