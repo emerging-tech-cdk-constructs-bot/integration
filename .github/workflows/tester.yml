@@ -9,7 +9,6 @@ on:
         type: string
         required: true
         default: '1716601244789'
-
 jobs:
   tester:
     runs-on: ubuntu-latest
@@ -21,7 +20,7 @@ jobs:
       checks: write
       pull-requests: read
     steps:
-      - name: Use the GitHub API GraphQL and return the checkRun if matching the externalId if associated with an open, mergeable, approved, labeled, not in draft pull request
+      - name: Get details of the pull request
         id: graphql
         run: |
           echo repository=`gh api graphql \
@@ -69,42 +68,25 @@ jobs:
                     }
                   }
                 }
-              }' | jq -c '.data.repository'  #  | jq -c '.data.repository.pullRequest | select (.state == "OPEN") | select (.reviewDecision == "APPROVED") | select (.mergeable == "MERGEABLE") | select (.labels.nodes[].name == "integration") | select (.isDraft == false) | .statusCheckRollup.contexts.nodes[] | select (.externalId == "${{ inputs.externalId }}") | .'` >> "$GITHUB_OUTPUT"
-      - name: The admins
+              }' | jq -c '.data.repository'` >> "$GITHUB_OUTPUT"
+      - name: Store the Administrators
         id: collaborators
         run: |
-          echo "actor ${{ github.actor }} and triggering actor ${{ github.triggering_actor }}"
           echo admins=`echo '${{ steps.graphql.outputs.repository }}' | jq -c '.collaborators.edges[] | select(.permission == "ADMIN") | [.node.login]'` >> "$GITHUB_OUTPUT"
-      - name: Get the check run
+      - name: Get the check run if the PR is open, approved, mergeable, not in draft, and labeled with integration
         id: pullrequest
         run: |
           echo checkrun=`echo '${{ steps.graphql.outputs.repository }}' | jq -c '.pullRequest | select (.state == "OPEN") | select (.reviewDecision == "APPROVED") | select (.mergeable == "MERGEABLE") | select (.labels.nodes[].name == "integration") | select (.isDraft == false) | .statusCheckRollup.contexts.nodes[] | select (.externalId == "${{ inputs.externalId }}") | .'` >> "$GITHUB_OUTPUT"          
-      - name: Set the properties
+      - name: Get the properties for the check run
         id: props
         run: |
           echo status=`echo '${{ steps.pullrequest.outputs.checkrun }}' | jq -r '.status'` >> "$GITHUB_OUTPUT";
           echo databaseId=`echo '${{ steps.pullrequest.outputs.checkrun }}' | jq -r '.databaseId'` >> "$GITHUB_OUTPUT";
           echo externalId=`echo '${{ steps.pullrequest.outputs.checkrun }}' | jq -r '.externalId'` >> "$GITHUB_OUTPUT";
-          echo conclusion=`echo '${{ steps.pullrequest.outputs.checkrun }}' | jq -r '.conclusion'` >> "$GITHUB_OUTPUT";
-          echo isRequired=`echo '${{ steps.pullrequest.outputs.checkrun }}' | jq -r '.isRequired'` >> "$GITHUB_OUTPUT";
           echo name=`echo '${{ steps.pullrequest.outputs.checkrun }}' | jq -r '.name'` >> "$GITHUB_OUTPUT";
-      - name: Debug outputs
-        run: |
-          echo ${{ steps.collaborators.outputs.admins }};
-          echo ${{ steps.pullrequest.outputs.checkrun }};
-          echo ${{ steps.props.outputs.name }};
-          echo ${{ steps.props.outputs.status }};
-      - name: Is the actor an admin
+      - name: Run if the integration check run is incomplete and the actor is an admin
         if:
-          ${{ contains(steps.collaborators.outputs.admins, github.actor) }}
-        run: echo "Yes, ${{ github.actor }} is part of ${{ steps.collaborators.outputs.admins }}"
-      - name: Is the actor is not allowed to do this
-        if:
-          ${{ ! contains(steps.collaborators.outputs.admins, github.actor) }}
-        run: echo "No, ${{ github.actor }} is not in ${{ steps.collaborators.outputs.admins }}"
-      - name: If checkRun's status is not completed
-        if: 
+          contains(steps.collaborators.outputs.admins, github.actor) &&
           steps.props.outputs.name == 'integration' &&
           steps.props.outputs.status != 'COMPLETED'
-        run: |
-          echo "NOT COMPLETED yet, status is ${{ steps.props.outputs.status }}";
+        run: echo "Yes, ${{ github.actor }} is part of ${{ steps.collaborators.outputs.admins }}"
