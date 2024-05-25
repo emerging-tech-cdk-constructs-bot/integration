@@ -25,16 +25,26 @@ jobs:
       - uses: actions/checkout@v4
         with:
           repository: 'awslabs/generative-ai-cdk-constructs'
-      - name: Get the PR
+      - name: Get the PR and test mergeability
         if: fromJSON(inputs.pullRequestNumber) > 0
         run: |-
-          pwd;
-          ls -l;
-          echo "yes, there is a PR to find ${{ inputs.pullRequestNumber }}";
           gh pr checkout ${{ inputs.pullRequestNumber }};
-          git status;
-      - name: Where are we
-        run: |-
-          git merge main
-          git branch
-          git diff main..HEAD
+          git merge `gh pr view ${{ inputs.pullRequestNumber }} --json baseRefName | jq -r '.baseRefName'`
+          echo "::group::Git Differences"
+          git diff `gh pr view ${{ inputs.pullRequestNumber }} --json baseRefName | jq -r '.baseRefName'`..HEAD
+          echo "::endgroup::"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+          cache: 'yarn'
+          cache-dependency-path: 'yarn.lock'
+      - run: |-
+          npm install -g aws-cdk
+          npx projen install
+          npx projen default
+          npx projen pre-compile
+          npx projen compile
+          npx projen post-compile
+          npx projen package-all
+          ls -lR ./dist/
+
