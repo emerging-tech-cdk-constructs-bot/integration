@@ -117,6 +117,10 @@ jobs:
             'samples/python-samples/requirements-local.txt'
             'samples/python-samples/requirements-dev.txt'
       - run: |-
+          pip freeze
+          python -m venv .venv
+          source .venv/bin/activate
+          pip freeze
           pip install -r requirements-local.txt
           pip install -r requirements-dev.txt
           pip freeze
