@@ -94,11 +94,6 @@ jobs:
         with:
           repository: 'aws-samples/generative-ai-cdk-constructs-samples'
           ref: "${{ inputs.branchToCheckout }}"
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '20.x'
-      - run: |-
-          npm install -g aws-cdk
       - name: Download package
         uses: actions/download-artifact@v4
         with:
@@ -124,6 +119,11 @@ jobs:
           pip install -r requirements-local.txt
           pip install -r requirements-dev.txt
           pip freeze
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+      - run: |-
+          npm install -g aws-cdk
       - uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: ${{ secrets.AWS_ROLE_ARN_TO_ASSUME }}
