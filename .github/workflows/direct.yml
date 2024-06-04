@@ -12,7 +12,7 @@ on:
       branchToCheckout:
         type: string
         required: true
-        default: 'feat/pytest'
+        default: 'main'
 jobs:
   build:
     runs-on: ubuntu-latest
