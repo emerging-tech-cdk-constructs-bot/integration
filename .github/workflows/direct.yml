@@ -137,7 +137,7 @@ jobs:
         with:
           name: .venv
           path: |
-            .venv
+            .venv/
       - uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: ${{ secrets.AWS_ROLE_ARN_TO_ASSUME }}
@@ -154,7 +154,7 @@ jobs:
         with:
           name: cdk.out
           path: |
-            cdk.out
+            cdk.out/
       - run: |-
           aws sts get-caller-identity
           source .venv/bin/activate
