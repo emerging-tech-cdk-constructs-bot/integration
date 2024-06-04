@@ -14,23 +14,6 @@ on:
         required: true
         default: 'feat/pytest'
 jobs:
-  # oidc_debug_test:
-  #   permissions:
-  #     contents: read
-  #     id-token: write
-  #   runs-on: ubuntu-latest
-  #   name: A test of the oidc debugger
-  #   steps:
-  #     - name: Checkout actions-oidc-debugger
-  #       uses: actions/checkout@v4
-  #       with:
-  #         repository: github/actions-oidc-debugger
-  #         ref: main
-  #         path: ./.github/actions/actions-oidc-debugger
-  #     - name: Debug OIDC Claims
-  #       uses: ./.github/actions/actions-oidc-debugger
-  #       with:
-  #         audience: '${{ github.server_url }}/${{ github.repository_owner }}'
   build:
     runs-on: ubuntu-latest
     env:
@@ -120,18 +103,10 @@ jobs:
             'samples/python-samples/requirements-local.txt'
             'samples/python-samples/requirements-dev.txt'
       - run: |-
-          which poetry && poetry --version
-          which pytest && pytest --version
           python -m venv .venv
           source .venv/bin/activate
           pip install -r requirements-local.txt
           pip install -r requirements-dev.txt
-          pip install "poetry<=1.5.1"
-          pip freeze
-          python --version
-          pip --version
-          which poetry && poetry --version
-          which pytest && pytest --version
       - name: package artifacts
         uses: actions/upload-artifact@v4
         with:
@@ -159,4 +134,10 @@ jobs:
           aws sts get-caller-identity
           source .venv/bin/activate
           pytest
-
+      - name: package artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: pytest
+          path: |
+            pytest-junit.xml
+     
