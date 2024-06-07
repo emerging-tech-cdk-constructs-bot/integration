@@ -21,15 +21,6 @@ export class GitHubAppConstruct extends Construct {
         assumedBy: new iam.ServicePrincipal('lambda.amazonaws.com'),
         description: 'Role for GitHub App',
         inlinePolicies: {
-          // S3Policy: new iam.PolicyDocument({
-          //   statements: [
-          //     new iam.PolicyStatement({
-          //       actions: ['s3:PutObject'],
-          //       effect: iam.Effect.ALLOW,
-          //       resources: [gitHubBucket.arnForObjects(`${GITHUB_PREFIX}/*`)]
-          //     })
-          //   ]
-          // }),
           SecretsManagerPolicy: new iam.PolicyDocument({
             statements: [
               new iam.PolicyStatement({
